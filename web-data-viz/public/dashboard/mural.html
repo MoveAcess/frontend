@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Acessibilidade em Transporte Público</title>
+    <link rel="icon" href="../assets/imgs/logoPreta.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/dashboards.css">
+    <script src="../js/sessao.js"></script>
+
+</head>
+
+<body onload="validarSessao()">
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="../assets/imgs/logo.svg" alt="" width="120px">
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="perfil.html" class="nav-item active">
+                    <i class="fa fa-user-circle-o"></i>
+                    <span>Perfil</span>
+                </a>
+                <a href="mural.html" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="mapa.html" class="nav-item">
+                    <i class="fa-regular fa-map"></i>
+                    <span>Mapas</span>
+                </a>
+                <a href="relatorios.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Relatórios</span>
+                </a>
+                <a href="../index.html" class="nav-item" id="sair">
+                    <i class="fa-solid fa-door-open"></i>
+                    <span onclick="limparSessao()">Sair</span>
+                </a>
+            </nav>
+        </aside>
+
+        <div class="main-content">
+            <header class="header">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button class="nav-toggle" aria-label="abrir menu">
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
+                    </button>
+                    <h1>Dashboard</h1> 
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="content">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-bus"></i>
+                            </div>
+                            <div class="stat-title">Ônibus Acessíveis</div>
+                        </div>
+                        <div class="stat-value" id="frota-acessivel">0%</div>
+                        <div class="stat-subtitle">da frota total</div>
+                        <span class="stat-change" id="variacao-frota">
+                            <i class="fas fa-arrow-up"></i>
+                            <span id="variacao-frota-text">0%</span>
+                        </span>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-title">Elevadores Inoperantes</div>
+                        </div>
+                        <div class="stat-value" id="elevadores-inoperantes">0</div>
+                        <div class="stat-subtitle">em estações de metrô</div>
+                        <span class="stat-change" id="variacao-elevadores">
+                            <i class="fas fa-arrow-up"></i>
+                            <span id="variacao-elevadores-text">0%</span>
+                        </span>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="stat-title">Reclamações Registradas</div>
+                        </div>
+                        <div class="stat-value" id="reclamacoes-registradas">0</div>
+                        <div class="stat-subtitle">nos últimos 30 dias</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="stat-title">Frota Operando</div>
+                        </div>
+                        <div class="stat-value" id="veiculos-operando">0</div>
+                        <div class="stat-subtitle">veículos operando</div>
+                        <span class="stat-change" id="variacao-veiculos">
+                            <i class="fas fa-arrow-up"></i>
+                            <span id="variacao-veiculos-text">0</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3 class="chart-title">Evolução da Acessibilidade (2019-2024)</h3>
+                        <div class="chart-container">
+                            <canvas id="evolutionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3 class="chart-title">Distribuição por Nível de Acessibilidade (2025)</h3>
+                        <div class="chart-container">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+    // Variáveis globais para os gráficos
+    let evolutionChart = null;
+    let distributionChart = null;
+
+    // Função para carregar dados dinâmicos do dashboard
+    function carregarDadosDashboard() {
+        console.log("Carregando dados REAIS do dashboard...");
+        
+        fetch("/dashboard/obterMetricas")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro na requisição: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(dados => {
+                console.log("Dados REAIS recebidos:", dados);
+                atualizarCards(dados);
+                atualizarGraficos(dados);
+            })
+            .catch(error => {
+                console.error("ERRO: Não foi possível carregar dados REAIS.", error);
+                // Usar dados estáticos em caso de erro
+                console.log("Usando dados estáticos como fallback");
+                const dadosEstaticos = {
+                    frota_acessivel: '52%',
+                    variacao_frota: '+5%',
+                    elevadores_inoperantes: 2,
+                    variacao_elevadores: '-10%',
+                    reclamacoes_registradas: 8,
+                    veiculos_operando: 35,
+                    variacao_veiculos: '+5',
+                    evolucao_acessibilidade: [15, 22, 35, 48, 62, 75],
+                    distribuicao_acessibilidade: [18, 10, 4, 2]
+                };
+                atualizarCards(dadosEstaticos);
+                atualizarGraficos(dadosEstaticos);
+            });
+    }
+
+    function atualizarCards(dados) {
+        console.log("Atualizando cards com:", dados);
+        
+        // Card 1: Ônibus Acessíveis
+        if (dados.frota_acessivel) {
+            document.getElementById('frota-acessivel').textContent = dados.frota_acessivel;
+        }
+        if (dados.variacao_frota) {
+            const variacaoElement = document.getElementById('variacao-frota');
+            const textoElement = document.getElementById('variacao-frota-text');
+            if (variacaoElement && textoElement) {
+                textoElement.textContent = dados.variacao_frota;
+                
+                // Define a classe correta baseada no sinal
+                if (dados.variacao_frota.startsWith('+')) {
+                    variacaoElement.className = 'stat-change positive';
+                    variacaoElement.querySelector('i').className = 'fas fa-arrow-up';
+                } else {
+                    variacaoElement.className = 'stat-change negative';
+                    variacaoElement.querySelector('i').className = 'fas fa-arrow-down';
+                }
+            }
+        }
+
+        // Card 2: Elevadores Inoperantes
+        if (dados.elevadores_inoperantes !== undefined) {
+            document.getElementById('elevadores-inoperantes').textContent = dados.elevadores_inoperantes;
+        }
+        if (dados.variacao_elevadores) {
+            const variacaoElement = document.getElementById('variacao-elevadores');
+            const textoElement = document.getElementById('variacao-elevadores-text');
+            if (variacaoElement && textoElement) {
+                textoElement.textContent = dados.variacao_elevadores;
+                
+                // Para elevadores, redução é positiva (menos problemas)
+                if (dados.variacao_elevadores.startsWith('-')) {
+                    variacaoElement.className = 'stat-change positive';
+                    variacaoElement.querySelector('i').className = 'fas fa-arrow-down';
+                } else {
+                    variacaoElement.className = 'stat-change negative';
+                    variacaoElement.querySelector('i').className = 'fas fa-arrow-up';
+                }
+            }
+        }
+
+        // Card 3: Reclamações Registradas
+        if (dados.reclamacoes_registradas !== undefined) {
+            document.getElementById('reclamacoes-registradas').textContent = dados.reclamacoes_registradas;
+        }
+
+        // Card 4: Frota Operando
+        if (dados.veiculos_operando !== undefined) {
+            document.getElementById('veiculos-operando').textContent = dados.veiculos_operando;
+        }
+        if (dados.variacao_veiculos) {
+            const variacaoElement = document.getElementById('variacao-veiculos');
+            const textoElement = document.getElementById('variacao-veiculos-text');
+            if (variacaoElement && textoElement) {
+                textoElement.textContent = dados.variacao_veiculos;
+                
+                // Para frota, aumento é positivo
+                if (dados.variacao_veiculos.startsWith('+')) {
+                    variacaoElement.className = 'stat-change positive';
+                    variacaoElement.querySelector('i').className = 'fas fa-arrow-up';
+                } else {
+                    variacaoElement.className = 'stat-change negative';
+                    variacaoElement.querySelector('i').className = 'fas fa-arrow-down';
+                }
+            }
+        }
+    }
+
+    function atualizarGraficos(dados) {
+        console.log("Atualizando gráficos com:", dados);
+        
+        // Gráfico de evolução
+        if (evolutionChart && dados.evolucao_acessibilidade) {
+            console.log("Atualizando gráfico de evolução:", dados.evolucao_acessibilidade);
+            evolutionChart.data.datasets[0].data = dados.evolucao_acessibilidade;
+            evolutionChart.update();
+        } else {
+            console.log("Gráfico de evolução não inicializado ou dados faltando");
+        }
+
+        // Gráfico de distribuição
+        if (distributionChart && dados.distribuicao_acessibilidade) {
+            console.log("Atualizando gráfico de distribuição:", dados.distribuicao_acessibilidade);
+            distributionChart.data.datasets[0].data = dados.distribuicao_acessibilidade;
+            distributionChart.update();
+        } else {
+            console.log("Gráfico de distribuição não inicializado ou dados faltando");
+        }
+    }
+
+    function inicializarGraficos() {
+        console.log("Inicializando gráficos...");
+        
+        // Evolution Chart
+        const ctx1 = document.getElementById('evolutionChart');
+        if (ctx1) {
+            console.log("Canvas evolutionChart encontrado");
+            evolutionChart = new Chart(ctx1.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['2019', '2020', '2021', '2022', '2023', '2024'],
+                    datasets: [{
+                        label: 'Percentual de Acessibilidade',
+                        data: [0, 0, 0, 0, 0, 0], // Inicia com zeros
+                        backgroundColor: '#3b82f6',
+                        borderColor: '#2563eb',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function (value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            console.error("Canvas evolutionChart NÃO encontrado!");
+        }
+
+        // Distribution Chart
+        const ctx2 = document.getElementById('distributionChart');
+        if (ctx2) {
+            console.log("Canvas distributionChart encontrado");
+            distributionChart = new Chart(ctx2.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: [
+                        'Totalmente Acessível',
+                        'Parcialmente Acessível',
+                        'Não Acessível',
+                        'Em Adaptação'
+                    ],
+                    datasets: [{
+                        data: [0, 0, 0, 0], // Inicia com zeros
+                        backgroundColor: [
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#6366f1'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            console.error("Canvas distributionChart NÃO encontrado!");
+        }
+    }
+
+    // Menu hamburger
+    function configurarMenu() {
+        const navToggle = document.querySelector('.nav-toggle');
+        const sidebar = document.getElementById('sidebar');
+
+        if (navToggle && sidebar) {
+            navToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sidebar.classList.toggle('open');
+            });
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    sidebar.classList.remove('open');
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!sidebar.contains(e.target) && !navToggle.contains(e.target) && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        }
+    }
+
+    // Inicialização quando o DOM estiver carregado
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM carregado - Iniciando dashboard...");
+        configurarMenu();
+        inicializarGraficos();
+        carregarDadosDashboard();
+        
+        // Atualiza os dados a cada 1 minuto
+        setInterval(carregarDadosDashboard, 60000);
+    });
+</script>
+</body>
+
+</html>
