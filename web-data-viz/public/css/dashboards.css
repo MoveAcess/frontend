@@ -266,15 +266,8 @@ body {
 }
 
 .chart-container {
-    position: relative;
-    height: 300px;
-    width: 100%;
-}
-
-canvas {
-    display: block;
-    width: 100% !important;
-    height: 100% !important;
+  position: relative;
+  height: 300px;
 }
 
 /* Menu Hamburguer - ESTILOS ATUALIZADOS */

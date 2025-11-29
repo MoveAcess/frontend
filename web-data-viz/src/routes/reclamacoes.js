@@ -4,6 +4,13 @@ var router = express.Router();
 var reclamacaoController = require("../controllers/reclamacaoController");
 var comentarioController = require("../controllers/comentarioController");
 
+
+router.get("/listar", reclamacaoController.listar);
+router.delete("/deletar/:id", reclamacaoController.deletar);
+router.put("/editar/:id", reclamacaoController.editar);
+router.post("/criar", reclamacaoController.criar);
+router.get("/buscar/:id", reclamacaoController.buscarPorId); 
+
 // ==================== ROTAS DE RECLAMAÇÕES ====================
 router.get("/", function (req, res) {
     reclamacaoController.listarTodas(req, res);
@@ -37,6 +44,10 @@ router.put("/comentarios/:id", function (req, res) {
 // DELETAR comentário
 router.delete("/comentarios/:id", function (req, res) {
     comentarioController.deletar(req, res);
+});
+
+router.get("/usuario/:idUsuario", function (req, res) {
+    reclamacaoController.listarReclamacoesUsuario(req, res);
 });
 
 module.exports = router;

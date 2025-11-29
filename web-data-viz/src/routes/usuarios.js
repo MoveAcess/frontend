@@ -12,6 +12,11 @@ router.post("/autenticar", function (req, res) {
     usuarioController.autenticar(req, res);
 });
 
+router.delete("/admin/deletar/:id", function (req, res) {
+    usuarioController.deletar(req, res);
+});
+
+router.get("/visualizar/:id", usuarioController.visualizar);
 
 router.get("/visualizar/:id", function (req, res) {
     usuarioController.visualizar(req, res);

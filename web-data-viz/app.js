@@ -16,8 +16,8 @@ var app = express();
 
 var usuarioRouter = require("./src/routes/usuarios");
 var reclamacoesRouter = require("./src/routes/reclamacoes");
-
 var dashboardRouter = require("./src/routes/dashboard");
+var reclamacaoUserRouter = require("./src/routes/reclamacaoUser");
 
 
 app.use(express.json());
@@ -29,10 +29,16 @@ app.use(cors());
 
 app.use("/usuarios", usuarioRouter);
 app.use("/reclamacoes", reclamacoesRouter);
+app.use("/dashboard", dashboardRouter);
+app.use("/reclamacaoUser", reclamacaoUserRouter);
+app.use("/reclamacoes", reclamacoes);
+
+
 console.log("usuarioRouter =", usuarioRouter);
 console.log("reclamacoesRouter =", reclamacoesRouter);
-app.use("/dashboard", dashboardRouter);
-
+console.log("dashboardRouter =", dashboardRouter);
+console.log("reclamacaoUserRouter =", reclamacaoUserRouter);
+console.log("Processo de ambiente:", ambiente_processo);
 
 app.listen(PORTA_APP, function () {
     console.log(`
