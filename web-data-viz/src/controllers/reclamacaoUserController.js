@@ -1,53 +1,74 @@
-var reclamacaoUser = require("../models/reclamacaoUserModel");
+var reclamacaoUserModel = require("../models/reclamacaoUserModel");
 
+// ======================= CADASTRAR ==========================
 function cadastrarReclamacaoUser(req, res) {
-    var idUsuario = req.body.idUsuario;
-    var titulo = req.body.titulo;
-    var descricao = req.body.descricao;
-    var dataReclamacao = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    reclamacaoUser.cadastrarReclamacaoUser(idUsuario, titulo, descricao, dataReclamacao)
-        .then(function(resultado) {
-            res.json(resultado);
-        })
-        .catch(function(erro) {
-            console.error(erro);
+    const fkUsuario = req.params.idUsuario;
+    const titulo = req.body.titulo;
+    const descricao = req.body.descricao;
+    const local = req.body.local;
+    const veiculo = req.body.veiculo;
+
+    // Validação básica
+    if (!fkUsuario || !titulo || !descricao || !local || !veiculo) {
+        return res.status(400).json({ error: "Dados incompletos para cadastro." });
+    }
+    reclamacaoUserModel
+        .cadastrarReclamacaoUser(fkUsuario, titulo, descricao, local, veiculo)
+        .then(resultado => res.status(201).json(resultado))
+        .catch(erro => {
+            console.error("❌ Erro ao cadastrar reclamação:", erro.sqlMessage || erro);
             res.status(500).json({ error: "Erro ao cadastrar reclamação." });
         });
-}   
+}
 
+// ======================= LISTAR ==========================
 function listarReclamacoesUser(req, res) {
-    var idUsuario = req.query.idUsuario;
-    reclamacaoUser.listarReclamacoesUser(idUsuario)
-        .then(function(resultado) {
-            res.json(resultado);
-        })
-        .catch(function(erro) {
-            console.error(erro);
+    const idUsuario = req.params.idUsuario;
+
+    if (!idUsuario) {
+        return res.status(400).json({ error: "É necessário informar o idUsuario." });
+    }
+
+    reclamacaoUserModel
+        .listarReclamacoesUser(idUsuario)
+        .then(resultado => res.status(200).json(resultado))
+        .catch(erro => {
+            console.error("❌ Erro ao listar reclamações:", erro.sqlMessage || erro);
             res.status(500).json({ error: "Erro ao listar reclamações." });
         });
 }
 
+// ======================= EDITAR STATUS ==========================
 function editarReclamacaoUser(req, res) {
-    var idReclamacao = req.params.idReclamacao;
-    var novoStatus = req.body.status;
-    reclamacaoUser.editarReclamacaoUser(idReclamacao, novoStatus)
-        .then(function(resultado) {
-            res.json(resultado);
-        })
-        .catch(function(erro) {
-            console.error(erro);
+    const idReclamacao = req.params.idReclamacao;
+    const novoStatus = req.body.statusReclamacao;
+
+    if (!idReclamacao || !novoStatus) {
+        return res.status(400).json({ error: "Dados incompletos para edição." });
+    }
+
+    reclamacaoUserModel
+        .editarReclamacaoUser(idReclamacao, novoStatus)
+        .then(resultado => res.status(200).json(resultado))
+        .catch(erro => {
+            console.error("❌ Erro ao editar reclamação:", erro.sqlMessage || erro);
             res.status(500).json({ error: "Erro ao editar reclamação." });
         });
 }
 
+// ======================= DELETAR ==========================
 function deletarReclamacaoUser(req, res) {
-    var idReclamacao = req.params.idReclamacao;
-    reclamacaoUser.deletarReclamacaoUser(idReclamacao)
-        .then(function(resultado) {
-            res.json(resultado);
-        })
-        .catch(function(erro) {
-            console.error(erro);
+    const idReclamacao = req.params.idReclamacao;
+
+    if (!idReclamacao) {
+        return res.status(400).json({ error: "ID da reclamação não informado." });
+    }
+
+    reclamacaoUserModel
+        .deletarReclamacaoUser(idReclamacao)
+        .then(resultado => res.status(200).json(resultado))
+        .catch(erro => {
+            console.error("❌ Erro ao deletar reclamação:", erro.sqlMessage || erro);
             res.status(500).json({ error: "Erro ao deletar reclamação." });
         });
 }
@@ -57,4 +78,4 @@ module.exports = {
     listarReclamacoesUser,
     editarReclamacaoUser,
     deletarReclamacaoUser
-}
+};

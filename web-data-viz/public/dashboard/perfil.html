@@ -10,12 +10,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/perfil.css">
-
     <script src="../js/sessao.js"></script>
-    <script src="../js/reclamacaoUser.js"></script>
 </head>
 
-<body onload="validarSessao(); visualizar(); listarReclamacoesUsuario();">
+<script src="../js/reclamacaoUser.js"></script>
+<script src="../js/deletar.js"></script>
+<script src="../js/visualizar.js"></script>
+<script src="../js/editar.js"></script>
+
+<body onload="validarSessao(); visualizar(); listarReclamacoesUser();">
 
     <div class="dashboard">
 
@@ -133,26 +136,51 @@
                             <!-- SEARCH -->
                             <div class="search-box">
                                 <i class="fas fa-search"></i>
-                                <input type="text" id="user-search-input" placeholder="Buscar por ID, tipo ou local...">
+                                <input type="text" id="input_search_reclamacao"
+                                    placeholder="Buscar por ID, tipo ou local...">
                             </div>
 
                             <!-- FILTER BUTTON -->
-                            <button id="user-filter-button" class="btn-nova-reclamacao">
+                            <button id="btn_filter_reclamacao" class="btn-nova-reclamacao">
                                 <i class="fas fa-filter"></i>
-                                <span id="user-filter-text">Todos</span>
+                                <span id="filter_status_text">Todos</span>
                             </button>
 
                             <!-- FILTER MENU -->
-                            <div id="user-filter-menu" class="filter-menu" style="display: none;">
-                                <div class="filter-option" data-filter="Todos">Todos</div>
-                                <div class="filter-option" data-filter="Baixa">Baixa</div>
-                                <div class="filter-option" data-filter="Média">Média</div>
-                                <div class="filter-option" data-filter="Alta">Alta</div>
+                            <div id="filter_reclamacao_menu" class="filter-menu" style="display: none;">
+                                <div class="filter-option" data-status="Todos">Todos</div>
+                                <div class="filter-option" data-status="Pendente">Pendente</div>
+                                <div class="filter-option" data-status="Em andamento">Em andamento</div>
+                                <div class="filter-option" data-status="Resolvido">Resolvido</div>
                             </div>
 
-                            <button class="btn-nova-reclamacao">
+                            <button class="btn-nova-reclamacao" id="btnNovaReclamacao">
                                 <i class="fas fa-plus"></i> Nova Reclamação
                             </button>
+
+                            <!-- MODAL DE NOVA RECLAMAÇÃO -->
+                            <div id="modalNovaReclamacao" class="modal" style="display:none;">
+                                <div class="modal-content">
+                                    <h2>Nova Reclamação</h2>
+
+                                    <label>Título</label>
+                                    <input type="text" id="tituloReclamacao">
+
+                                    <label>Veículo</label>
+                                    <input type="text" id="veiculoReclamacao">
+
+                                    <label>Descrição</label>
+                                    <textarea id="descricaoReclamacao"></textarea>
+
+                                    <label>Local</label>
+                                    <input type="text" id="localReclamacao">
+
+                                    <div class="modal-actions">
+                                        <button id="btnFecharModal" class="btn-cancelar">Cancelar</button>
+                                        <button id="btnEnviarReclamacao" class="btn-salvar">Enviar</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -164,30 +192,29 @@
                                 <th>Data/Hora</th>
                                 <th>Tipo</th>
                                 <th>Local</th>
-                                <th>Prioridade</th>
                                 <th>Status</th>
                                 <th>Descrição</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
 
-                        <tbody id="user-complaints-tbody">
-                            <!-- preenchido por JS -->
+                        <tbody id="tabelaReclamacoesUser">
+                            <!-- preenchido automaticamente pelo reclamacaoUser.js -->
                         </tbody>
                     </table>
 
-                    <p id="user-no-results" style="display:none; text-align:center; padding:20px; color:#777;">
+                    <p id="mensagemSemReclamacoes" style="display:none; text-align:center; padding:20px; color:#777;">
                         Nenhuma reclamação encontrada.
                     </p>
 
                 </div>
 
+
             </main>
         </div>
     </div>
 
-    <script src="../js/deletar.js"></script>
-    <script src="../js/visualizar.js"></script>
-    <script src="../js/editar.js"></script>
+
     <script>
         const navToggle = document.querySelector('.nav-toggle');
         const sidebar = document.getElementById('sidebar');

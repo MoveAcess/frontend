@@ -1,27 +1,68 @@
-var database = require("../database/dbConfig");
+var database = require("../database/config");
 
-function cadastrarReclamacaoUser(idUsuario, titulo, descricao, dataReclamacao) {
-    console.log("Cadastrando reclamação para o usuário:", idUsuario);
-    var instrucaoSql = `INSERT INTO reclamacaoUser (fk_usuario, titulo, descricao, dataReclamacao) VALUES (${idUsuario}, '${titulo}', '${descricao}', '${dataReclamacao}');`;   
-    return database.executar(instrucaoSql);
+// ======================= CADASTRAR ==========================
+function cadastrarReclamacaoUser(fkUsuario, titulo, descricao, local, dataCriacao, veiculo) {
+    if (!fkUsuario || !titulo || !descricao || !local || !dataCriacao || !veiculo) {
+        console.error("❌ Dados incompletos no Model ao cadastrar reclamação.");
+        return Promise.reject("Dados incompletos para cadastro.");
+    }
+    var instrucao = `
+        INSERT INTO reclamacao (fkUsuario, titulo, descricao, local, dataReclamacao, statusReclamacao, veiculo)
+        VALUES (${fkUsuario}, '${titulo}', '${descricao}', '${local}', '${dataCriacao}', 'Pendente', '${veiculo}');
+    `;
+    console.log("📌 Executando SQL (Cadastrar Reclamação):\n" + instrucao)
+    return database.executar(instrucao);
 }
 
+// ======================= LISTAR ==========================
 function listarReclamacoesUser(idUsuario) {
-    console.log("Listando reclamações para o usuário:", idUsuario);
-    var instrucaoSql = `SELECT * FROM reclamacaoUser WHERE fk_usuario = ${idUsuario};`;
-    return database.executar(instrucaoSql);
-}   
+    if (!idUsuario) {
+        console.error("❌ ID do usuário não informado no Model ao listar reclamações.");
+        return Promise.reject("ID do usuário obrigatório.");
+    }
 
-function editarReclamacaoUser(idReclamacao, novoStatus) {
-    console.log("Editando reclamação com ID:", idReclamacao);
-    var instrucaoSql = `UPDATE reclamacaoUser SET status = '${novoStatus}' WHERE idReclamacao = ${idReclamacao};`;
-    return database.executar(instrucaoSql);
+    var instrucao = `
+        SELECT idReclamacao, titulo, descricao, dataReclamacao, statusReclamacao
+        FROM reclamacao
+        WHERE fkUsuario = ${idUsuario}
+        ORDER BY dataReclamacao DESC;
+    `;
+
+    console.log("📌 Executando SQL (Listar Reclamações):\n" + instrucao);
+    return database.executar(instrucao);
 }
 
+// ======================= EDITAR STATUS ==========================
+function editarReclamacaoUser(idReclamacao, novoStatus) {
+    if (!idReclamacao || !novoStatus) {
+        console.error("❌ Dados incompletos no Model ao editar status.");
+        return Promise.reject("Dados incompletos para edição.");
+    }
+
+    var instrucao = `
+        UPDATE reclamacao
+        SET statusReclamacao = '${novoStatus}'
+        WHERE idReclamacao = ${idReclamacao};
+    `;
+
+    console.log("📌 Executando SQL (Editar Reclamação):\n" + instrucao);
+    return database.executar(instrucao);
+}
+
+// ======================= DELETAR ==========================
 function deletarReclamacaoUser(idReclamacao) {
-    console.log("Deletando reclamação com ID:", idReclamacao);
-    var instrucaoSql = `DELETE FROM reclamacaoUser WHERE idReclamacao = ${idReclamacao};`;
-    return database.executar(instrucaoSql);
+    if (!idReclamacao) {
+        console.error("❌ ID da reclamação não informado no Model ao deletar.");
+        return Promise.reject("ID obrigatório para deletar.");
+    }
+
+    var instrucao = `
+        DELETE FROM reclamacao
+        WHERE idReclamacao = ${idReclamacao};
+    `;
+
+    console.log("📌 Executando SQL (Deletar Reclamação):\n" + instrucao);
+    return database.executar(instrucao);
 }
 
 module.exports = {
@@ -29,4 +70,4 @@ module.exports = {
     listarReclamacoesUser,
     editarReclamacaoUser,
     deletarReclamacaoUser
-}
+};

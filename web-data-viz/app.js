@@ -14,10 +14,10 @@ var HOST_APP = process.env.APP_HOST;
 
 var app = express();
 
-var usuarioRouter = require("./src/routes/usuarios");
+var reclamacaoUserRouter = require("./src/routes/reclamacaoUser");
 var reclamacoesRouter = require("./src/routes/reclamacoes");
 var dashboardRouter = require("./src/routes/dashboard");
-var reclamacaoUserRouter = require("./src/routes/reclamacaoUser");
+var usuarioRouter = require("./src/routes/usuarios");
 
 
 app.use(express.json());
@@ -31,7 +31,6 @@ app.use("/usuarios", usuarioRouter);
 app.use("/reclamacoes", reclamacoesRouter);
 app.use("/dashboard", dashboardRouter);
 app.use("/reclamacaoUser", reclamacaoUserRouter);
-app.use("/reclamacoes", reclamacoes);
 
 
 console.log("usuarioRouter =", usuarioRouter);
