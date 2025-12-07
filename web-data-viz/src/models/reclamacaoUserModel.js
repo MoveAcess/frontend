@@ -1,4 +1,4 @@
-var database = require("../database/config");
+var database = require("../database/config.js");
 
 // ======================= CADASTRAR ==========================
 function cadastrarReclamacaoUser(fkUsuario, titulo, descricao, local, dataCriacao, veiculo) {

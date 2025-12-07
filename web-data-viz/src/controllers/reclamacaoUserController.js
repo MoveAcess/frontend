@@ -7,6 +7,7 @@ function cadastrarReclamacaoUser(req, res) {
     const descricao = req.body.descricao;
     const local = req.body.local;
     const veiculo = req.body.veiculo;
+    const dataCriacao = new Date().toISOString().slice(0,19).replace('T', ' ');
 
     // Validação básica
     if (!fkUsuario || !titulo || !descricao || !local || !veiculo) {

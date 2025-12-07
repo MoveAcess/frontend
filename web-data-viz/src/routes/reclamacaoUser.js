@@ -4,9 +4,13 @@ var router = express.Router();
 var reclamacaoUserController = require("../controllers/reclamacaoUserController");
 
 // ======================= CADASTRAR ==========================
+router.get("/cadastrar/:idUsuario", function (req, res){
+    console.log("Requisição recebida: POST /reclamacaoUser/criar");
+    reclamacaoUserController.cadastrarReclamacaoUser(req, res);
+});
 
 // ======================= LISTAR ==========================
-router.get("/listar", function (req, res) {
+router.get("/listar/:idUsuario", function (req, res) {
     console.log("📩 Requisição recebida: GET /reclamacaoUser/listar");
     reclamacaoUserController.listarReclamacoesUser(req, res);
 });
