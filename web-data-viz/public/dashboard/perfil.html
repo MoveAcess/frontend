@@ -13,10 +13,6 @@
     <script src="../js/sessao.js"></script>
 </head>
 
-<script src="../js/reclamacaoUser.js"></script>
-<script src="../js/deletar.js"></script>
-<script src="../js/visualizar.js"></script>
-<script src="../js/editar.js"></script>
 <!-- validarSessao(); -->
 
 <body onload=" visualizar(); listarReclamacoesUser();">
@@ -145,7 +141,6 @@
 
                 <div id="no-results" style="display:none">Nenhuma reclamação encontrada.</div>
 
-                <script src="../js/reclamacaoUser.js"></script>
                 <div class="main-content-reclamacoes">
 
                     <div class="section-header">
@@ -153,51 +148,26 @@
 
                         <div style="display: flex; align-items: center; gap: 16px;">
 
-                            <!-- SEARCH -->
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="input_search_reclamacao"
-                                    placeholder="Buscar por ID, tipo ou local...">
-                            </div>
-
-                            <!-- FILTER BUTTON -->
-                            <button id="btn_filter_reclamacao" class="btn-nova-reclamacao">
-                                <i class="fas fa-filter"></i>
-                                <span id="filter_status_text">Todos</span>
-                            </button>
-
-                            <!-- FILTER MENU -->
-                            <div id="filter_reclamacao_menu" class="filter-menu" style="display: none;">
-                                <div class="filter-option" data-status="Todos">Todos</div>
-                                <div class="filter-option" data-status="Pendente">Pendente</div>
-                                <div class="filter-option" data-status="Em andamento">Em andamento</div>
-                                <div class="filter-option" data-status="Resolvido">Resolvido</div>
-                            </div>
-
                             <button class="btn-nova-reclamacao" id="btnNovaReclamacao">
                                 <i class="fas fa-plus"></i> Nova Reclamação
                             </button>
 
-                            <!-- MODAL DE NOVA RECLAMAÇÃO -->
-                            <div id="modalNovaReclamacao" class="modal" style="display:none;">
-                                <div class="modal-content">
-                                    <h2>Nova Reclamação</h2>
+                            <!-- MODAL DE FILTRO DE RECLAMAÇÕES -->
+                            <div id="modalFiltro" class="modal-filtro hidden">
+                                <div class="modal-filtro-content">
+                                    <h2>Filtrar Reclamações</h2>
 
-                                    <label>Título</label>
-                                    <input type="text" id="tituloReclamacao">
+                                    <label for="select_status" class="label-filtro">Status:</label>
+                                    <select id="select_status" class="input-filtro">
+                                        <option value="Todos">Todos</option>
+                                        <option value="Pendente">Pendente</option>
+                                        <option value="Em análise">Em análise</option>
+                                        <option value="Resolvido">Resolvido</option>
+                                    </select>
 
-                                    <label>Veículo</label>
-                                    <input type="text" id="veiculoReclamacao">
-
-                                    <label>Descrição</label>
-                                    <textarea id="descricaoReclamacao"></textarea>
-
-                                    <label>Local</label>
-                                    <input type="text" id="localReclamacao">
-
-                                    <div class="modal-actions">
-                                        <button id="btnFecharModal" class="btn-cancelar">Cancelar</button>
-                                        <button id="btnEnviarReclamacao" class="btn-salvar">Enviar</button>
+                                    <div class="modal-buttons">
+                                        <button id="btn_aplicar_filtro" class="btn-aplicar">Aplicar</button>
+                                        <button id="btn_fechar_filtro" class="btn-cancelar">Cancelar</button>
                                     </div>
                                 </div>
                             </div>
@@ -234,6 +204,12 @@
         </div>
     </div>
 
+
+    <script src="../js/reclamacaoUser.js"></script>
+    <script src="../js/deletar.js"></script>
+    <script src="../js/visualizar.js"></script>
+    <script src="../js/editar.js"></script>
+    <script src="../js/reclamacaoUser.js"></script>
 
     <script>
         const navToggle = document.querySelector('.nav-toggle');

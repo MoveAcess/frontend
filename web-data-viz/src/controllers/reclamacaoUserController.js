@@ -11,6 +11,18 @@ function listarPorUsuario(req, res) {
         });
 }
 
+async function filtrar(req, res){
+    const idUsuario = req.params.idUsuario;
+    const filtros = req.query;
+
+    try {
+        const resultado = await reclamacaoUserModel.filtrarReclamacoes(idUsuario, filtros);
+        res.status(200).json(resultado);
+    }catch(error){
+        res.status(500).json({ error: "Erro ao filtrar reclamações" });
+    }
+}
+
 function cadastrar(req, res) {
     const { tipo, descricao, fkUsuario, fkVeiculo, fkLocal } = req.body;
 
@@ -51,6 +63,7 @@ function editar(req, res) {
 
 module.exports = {
     listarPorUsuario,
+    filtrar,
     cadastrar,
     deletar,
     editar

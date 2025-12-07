@@ -20,6 +20,37 @@ function listarPorUsuario(idUsuario) {
     return database.executar(instrucao);
 }
 
+// Parte do filtro
+function filtrarReclamacoes(idUsuario, filtros){
+    let sql = 'SELECT * FROM reclamacao WHERE fkUsuario = ?';
+    let params = [idUsuario];
+
+    if (filtros.status){
+        sql += ' AND status = ?';
+        params.push(filtros.status);
+    }
+
+    if (filtros.tipo){
+        sql += ' AND tipo = ?';
+        params.push(filtros.tipo);
+    }
+
+    if (filtros.local){
+        sql += ' AND local = ?';
+        params.push(filtros.local);
+    }
+
+    if (filtros.dataInicio){
+        sql += ' AND data <= ?';
+        params.push(filtros.dataInicio);
+    }
+
+    if (filtros.dataFim){
+        sql += ' AND data >= ?';
+        params.push(filtros.dataFim);
+    }
+}
+
 function cadastrar(tipo, descricao, fkUsuario, fkVeiculo, fkLocal) {
     const instrucao = `
         INSERT INTO reclamacao 
@@ -49,6 +80,7 @@ function editar(idReclamacao, tipo, descricao, status) {
 
 module.exports = {
     listarPorUsuario,
+    filtrarReclamacoes,
     cadastrar,
     deletar,
     editar

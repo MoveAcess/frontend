@@ -8,6 +8,9 @@ router.get("/:idUsuario", function (req, res) {
     reclamacaoUserController.listarPorUsuario(req, res);
 });
 
+// filtro
+router.get("/:idUsuario", reclamacaoUserController.filtrar);
+
 // cadastrar
 router.post("/cadastrar", function (req, res) {
     reclamacaoUserController.cadastrar(req, res);

@@ -10,6 +10,34 @@ document.addEventListener('DOMContentLoaded', function () {
     setupEventListeners();
 });
 
+        // Abrir modal
+        document.getElementById("btn_filter_reclamacao").onclick = () => {
+            document.getElementById("modalFiltro").classList.remove("hidden");
+        };
+
+        // Fechar modal
+        document.getElementById("btn_fechar_filtro").onclick = () => {
+            document.getElementById("modalFiltro").classList.add("hidden");
+        };
+
+        // Aplicar filtro
+        document.getElementById("btn_aplicar_filtro").onclick = () => {
+            const novoStatus = document.getElementById("select_status").value;
+
+            // Atualiza o texto no botão principal
+            document.getElementById("filter_status_text").innerText = novoStatus;
+
+            // Atualiza variável global
+            currentSearch = novoStatus === "Todos" ? "" : novoStatus;
+
+            // Recarrega reclamações filtradas
+            loadComplaints();
+
+            // Fecha modal
+            document.getElementById("modalFiltro").classList.add("hidden");
+        };
+
+
 // Carregar usuário do sessionStorage
 function loadUserFromSession() {
     const idUsuario = sessionStorage.getItem('ID_USUARIO');
@@ -17,11 +45,11 @@ function loadUserFromSession() {
 
     console.log('SessionStorage:', { idUsuario, nomeUsuario });
 
-    if (!idUsuario) {
-        alert('Você precisa fazer login primeiro.');
-        window.location.href = '../html/login.html';
-        return false;
-    }
+    // if (!idUsuario) {
+    //     alert('Você precisa fazer login primeiro.');
+    //     window.location.href = '../html/login.html';
+    //     return false;
+    // }
 
     currentUserId = parseInt(idUsuario);
 
@@ -31,6 +59,27 @@ function loadUserFromSession() {
     });
 
     return true;
+}
+
+// Reclamações
+function filtrarReclamacoes() {
+    const idUsuario = sessionStorage.ID_USUARIO;
+    const status = document.getElementById("filtro_status").value;
+    const tipo = document.getElementById("filtro_tipo").value;
+    const local  = document.getElementById("filtro_local").value;
+
+    let url = '/reclamacaoUser/${idUsuario}?';
+
+    if(status) url += 'status=${status}&';
+    if(tipo) url += 'tipo=${tipo}&';
+    if(local) url += 'local=${local}&';
+    
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            montarTabela(data);
+        });
+
 }
 
 // ==================== CARREGAR APENAS AS RECLAMAÇÕES DO USUÁRIO ====================
