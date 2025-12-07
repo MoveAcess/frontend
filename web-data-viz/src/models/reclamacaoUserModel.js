@@ -1,73 +1,55 @@
-var database = require("../database/config.js");
+var database = require("../database/config");
 
-// ======================= CADASTRAR ==========================
-function cadastrarReclamacaoUser(fkUsuario, titulo, descricao, local, dataCriacao, veiculo) {
-    if (!fkUsuario || !titulo || !descricao || !local || !dataCriacao || !veiculo) {
-        console.error("❌ Dados incompletos no Model ao cadastrar reclamação.");
-        return Promise.reject("Dados incompletos para cadastro.");
-    }
-    var instrucao = `
-        INSERT INTO reclamacao (fkUsuario, titulo, descricao, local, dataReclamacao, statusReclamacao, veiculo)
-        VALUES (${fkUsuario}, '${titulo}', '${descricao}', '${local}', '${dataCriacao}', 'Pendente', '${veiculo}');
+function listarPorUsuario(idUsuario) {
+    const instrucao = `
+        SELECT 
+            r.idReclamacao,
+            r.statusReclamacao,
+            r.tipo,
+            r.descricao,
+            r.dataHoraCriacao,
+            u.email AS usuarioEmail,
+            COALESCE(v.nome, le.nome, 'Local não informado') AS local
+        FROM reclamacao r
+        JOIN usuario u ON r.fkUsuario = u.idUsuario
+        LEFT JOIN veiculo v ON r.fkVeiculo = v.idVeiculo
+        LEFT JOIN localEmbarque le ON r.fkLocalEmbarque = le.idLocal
+        WHERE r.fkUsuario = ${idUsuario}
+        ORDER BY r.dataHoraCriacao DESC;
     `;
-    console.log("📌 Executando SQL (Cadastrar Reclamação):\n" + instrucao)
     return database.executar(instrucao);
 }
 
-// ======================= LISTAR ==========================
-function listarReclamacoesUser(idUsuario) {
-    if (!idUsuario) {
-        console.error("❌ ID do usuário não informado no Model ao listar reclamações.");
-        return Promise.reject("ID do usuário obrigatório.");
-    }
-
-    var instrucao = `
-        SELECT idReclamacao, titulo, descricao, dataReclamacao, statusReclamacao
-        FROM reclamacao
-        WHERE fkUsuario = ${idUsuario}
-        ORDER BY dataReclamacao DESC;
+function cadastrar(tipo, descricao, fkUsuario, fkVeiculo, fkLocal) {
+    const instrucao = `
+        INSERT INTO reclamacao 
+        (statusReclamacao, tipo, descricao, fkUsuario, fkVeiculo, fkLocalEmbarque)
+        VALUES ('Pendente', '${tipo}', '${descricao}', ${fkUsuario}, ${fkVeiculo || "NULL"}, ${fkLocal || "NULL"});
     `;
-
-    console.log("📌 Executando SQL (Listar Reclamações):\n" + instrucao);
     return database.executar(instrucao);
 }
 
-// ======================= EDITAR STATUS ==========================
-function editarReclamacaoUser(idReclamacao, novoStatus) {
-    if (!idReclamacao || !novoStatus) {
-        console.error("❌ Dados incompletos no Model ao editar status.");
-        return Promise.reject("Dados incompletos para edição.");
-    }
+function deletar(idReclamacao) {
+    const instrucao = `
+        DELETE FROM reclamacao WHERE idReclamacao = ${idReclamacao};
+    `;
+    return database.executar(instrucao);
+}
 
-    var instrucao = `
+function editar(idReclamacao, tipo, descricao, status) {
+    const instrucao = `
         UPDATE reclamacao
-        SET statusReclamacao = '${novoStatus}'
+        SET tipo = '${tipo}',
+            descricao = '${descricao}',
+            statusReclamacao = '${status}'
         WHERE idReclamacao = ${idReclamacao};
     `;
-
-    console.log("📌 Executando SQL (Editar Reclamação):\n" + instrucao);
-    return database.executar(instrucao);
-}
-
-// ======================= DELETAR ==========================
-function deletarReclamacaoUser(idReclamacao) {
-    if (!idReclamacao) {
-        console.error("❌ ID da reclamação não informado no Model ao deletar.");
-        return Promise.reject("ID obrigatório para deletar.");
-    }
-
-    var instrucao = `
-        DELETE FROM reclamacao
-        WHERE idReclamacao = ${idReclamacao};
-    `;
-
-    console.log("📌 Executando SQL (Deletar Reclamação):\n" + instrucao);
     return database.executar(instrucao);
 }
 
 module.exports = {
-    cadastrarReclamacaoUser,
-    listarReclamacoesUser,
-    editarReclamacaoUser,
-    deletarReclamacaoUser
+    listarPorUsuario,
+    cadastrar,
+    deletar,
+    editar
 };

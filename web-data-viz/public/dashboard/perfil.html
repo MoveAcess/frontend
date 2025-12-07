@@ -18,6 +18,7 @@
 <script src="../js/visualizar.js"></script>
 <script src="../js/editar.js"></script>
 <!-- validarSessao(); -->
+
 <body onload=" visualizar(); listarReclamacoesUser();">
 
     <div class="dashboard">
@@ -125,7 +126,26 @@
                     </div>
                 </div>
 
-                <!-- LISTA DINÂMICA DE RECLAMAÇÕES -->
+                <table class="complaints-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Data/Hora</th>
+                            <th>Tipo</th>
+                            <th>Local</th>
+                            <th>Prioridade</th>
+                            <th>Status</th>
+                            <th>Descrição</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="complaints-tbody"></tbody>
+                </table>
+
+                <div id="no-results" style="display:none">Nenhuma reclamação encontrada.</div>
+
+                <script src="../js/reclamacaoUser.js"></script>
                 <div class="main-content-reclamacoes">
 
                     <div class="section-header">

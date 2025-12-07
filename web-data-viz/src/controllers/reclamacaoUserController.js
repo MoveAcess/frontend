@@ -1,82 +1,57 @@
 var reclamacaoUserModel = require("../models/reclamacaoUserModel");
 
-// ======================= CADASTRAR ==========================
-function cadastrarReclamacaoUser(req, res) {
-    const fkUsuario = req.params.idUsuario;
-    const titulo = req.body.titulo;
-    const descricao = req.body.descricao;
-    const local = req.body.local;
-    const veiculo = req.body.veiculo;
-    const dataCriacao = new Date().toISOString().slice(0,19).replace('T', ' ');
+function listarPorUsuario(req, res) {
+    const id = req.params.idUsuario;
 
-    // Validação básica
-    if (!fkUsuario || !titulo || !descricao || !local || !veiculo) {
-        return res.status(400).json({ error: "Dados incompletos para cadastro." });
-    }
-    reclamacaoUserModel
-        .cadastrarReclamacaoUser(fkUsuario, titulo, descricao, local, veiculo)
-        .then(resultado => res.status(201).json(resultado))
-        .catch(erro => {
-            console.error("❌ Erro ao cadastrar reclamação:", erro.sqlMessage || erro);
-            res.status(500).json({ error: "Erro ao cadastrar reclamação." });
+    reclamacaoUserModel.listarPorUsuario(id)
+        .then(resultado => res.status(200).json(resultado))
+        .catch(err => {
+            console.error("Erro ao listar:", err.sqlMessage);
+            res.status(500).json(err.sqlMessage);
         });
 }
 
-// ======================= LISTAR ==========================
-function listarReclamacoesUser(req, res) {
-    const idUsuario = req.params.idUsuario;
+function cadastrar(req, res) {
+    const { tipo, descricao, fkUsuario, fkVeiculo, fkLocal } = req.body;
 
-    if (!idUsuario) {
-        return res.status(400).json({ error: "É necessário informar o idUsuario." });
+    if (!fkVeiculo && !fkLocal) {
+        return res.status(400).send("É necessário informar ou veículo ou local de embarque.");
     }
 
-    reclamacaoUserModel
-        .listarReclamacoesUser(idUsuario)
-        .then(resultado => res.status(200).json(resultado))
-        .catch(erro => {
-            console.error("❌ Erro ao listar reclamações:", erro.sqlMessage || erro);
-            res.status(500).json({ error: "Erro ao listar reclamações." });
+    reclamacaoUserModel.cadastrar(tipo, descricao, fkUsuario, fkVeiculo, fkLocal)
+        .then(() => res.status(201).send("Reclamação registrada!"))
+        .catch(err => {
+            console.error("Erro ao cadastrar:", err.sqlMessage);
+            res.status(500).json(err.sqlMessage);
         });
 }
 
-// ======================= EDITAR STATUS ==========================
-function editarReclamacaoUser(req, res) {
-    const idReclamacao = req.params.idReclamacao;
-    const novoStatus = req.body.statusReclamacao;
+function deletar(req, res) {
+    const id = req.params.idReclamacao;
 
-    if (!idReclamacao || !novoStatus) {
-        return res.status(400).json({ error: "Dados incompletos para edição." });
-    }
-
-    reclamacaoUserModel
-        .editarReclamacaoUser(idReclamacao, novoStatus)
-        .then(resultado => res.status(200).json(resultado))
-        .catch(erro => {
-            console.error("❌ Erro ao editar reclamação:", erro.sqlMessage || erro);
-            res.status(500).json({ error: "Erro ao editar reclamação." });
+    reclamacaoUserModel.deletar(id)
+        .then(() => res.status(200).send("Reclamação excluída"))
+        .catch(err => {
+            console.error("Erro ao excluir:", err.sqlMessage);
+            res.status(500).json(err.sqlMessage);
         });
 }
 
-// ======================= DELETAR ==========================
-function deletarReclamacaoUser(req, res) {
-    const idReclamacao = req.params.idReclamacao;
+function editar(req, res) {
+    const { tipo, descricao, status } = req.body;
+    const id = req.params.idReclamacao;
 
-    if (!idReclamacao) {
-        return res.status(400).json({ error: "ID da reclamação não informado." });
-    }
-
-    reclamacaoUserModel
-        .deletarReclamacaoUser(idReclamacao)
-        .then(resultado => res.status(200).json(resultado))
-        .catch(erro => {
-            console.error("❌ Erro ao deletar reclamação:", erro.sqlMessage || erro);
-            res.status(500).json({ error: "Erro ao deletar reclamação." });
+    reclamacaoUserModel.editar(id, tipo, descricao, status)
+        .then(() => res.status(200).send("Reclamação atualizada"))
+        .catch(err => {
+            console.error("Erro ao editar:", err.sqlMessage);
+            res.status(500).json(err.sqlMessage);
         });
 }
 
 module.exports = {
-    cadastrarReclamacaoUser,
-    listarReclamacoesUser,
-    editarReclamacaoUser,
-    deletarReclamacaoUser
+    listarPorUsuario,
+    cadastrar,
+    deletar,
+    editar
 };
