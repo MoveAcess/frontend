@@ -1,120 +1,6 @@
 var database = require("../database/config");
 
-
-function listar() {
-    var instrucao = `
-        SELECT 
-            r.idReclamacao,
-            r.statusReclamacao,
-            r.tipo,
-            r.descricao,
-            DATE_FORMAT(r.dataHoraCriacao, '%d/%m/%Y %H:%i') AS dataCriacao,
-            DATE_FORMAT(r.dataHoraResolucao, '%d/%m/%Y %H:%i') AS dataResolucao,
-            r.fkVeiculo,
-            r.fkLocalEmbarque,
-            r.fkUsuario,
-            v.tipoVeiculo AS tipoVeiculo,
-            l.nome AS local,
-            u.nome AS nomeUsuario
-        FROM reclamacao r
-        LEFT JOIN veiculo v ON r.fkVeiculo = v.idVeiculo
-        LEFT JOIN localEmbarque l ON r.fkLocalEmbarque = l.idLocal
-        LEFT JOIN usuario u ON r.fkUsuario = u.idUsuario
-        ORDER BY r.idReclamacao DESC;
-    `;
-    return database.executar(instrucao);
-}
-
-function listarPorUsuario(idUsuario) {
-    var instrucao = `
-        SELECT 
-            r.idReclamacao,
-            r.statusReclamacao,
-            r.tipo,
-            r.descricao,
-            DATE_FORMAT(r.dataHoraCriacao, '%d/%m/%Y %H:%i') AS dataCriacao,
-            DATE_FORMAT(r.dataHoraResolucao, '%d/%m/%Y %H:%i') AS dataResolucao,
-            r.fkVeiculo,
-            r.fkLocalEmbarque,
-            r.fkUsuario,
-            v.tipoVeiculo AS tipoVeiculo,
-            l.nome AS local
-        FROM reclamacao r
-        LEFT JOIN veiculo v ON r.fkVeiculo = v.idVeiculo
-        LEFT JOIN localEmbarque l ON r.fkLocalEmbarque = l.idLocal
-        WHERE r.fkUsuario = ${idUsuario}
-        ORDER BY r.idReclamacao DESC;
-    `;
-    return database.executar(instrucao);
-}
-
-function buscarPorId(id) {
-    var instrucao = `
-        SELECT 
-            r.idReclamacao,
-            r.statusReclamacao,
-            r.tipo,
-            r.descricao,
-            DATE_FORMAT(r.dataHoraCriacao, '%d/%m/%Y %H:%i') AS dataCriacao,
-            DATE_FORMAT(r.dataHoraResolucao, '%d/%m/%Y %H:%i') AS dataResolucao,
-            r.fkVeiculo,
-            r.fkLocalEmbarque,
-            r.fkUsuario
-        FROM reclamacao r
-        WHERE r.idReclamacao = ${id};
-    `;
-    return database.executar(instrucao);
-}
-
-function inserir(reclamacao) {
-    // reclamacao: { statusReclamacao, tipo, descricao, dataHoraCriacao, fkVeiculo, fkLocalEmbarque, fkUsuario }
-    var dataCriacao = reclamacao.dataHoraCriacao ? `'${reclamacao.dataHoraCriacao}'` : 'NOW()';
-    var fkVeiculo = reclamacao.fkVeiculo ? reclamacao.fkVeiculo : 'NULL';
-    var fkLocal = reclamacao.fkLocalEmbarque ? reclamacao.fkLocalEmbarque : 'NULL';
-
-    var instrucao = `
-        INSERT INTO reclamacao
-            (statusReclamacao, tipo, descricao, dataHoraCriacao, fkVeiculo, fkLocalEmbarque, fkUsuario)
-        VALUES
-            ('${reclamacao.statusReclamacao}', '${reclamacao.tipo}', '${reclamacao.descricao}', ${dataCriacao}, ${fkVeiculo}, ${fkLocal}, ${reclamacao.fkUsuario});
-    `;
-    return database.executar(instrucao);
-}
-
-function editar(id, campos) {
-    // campos: { statusReclamacao, descricao, dataHoraResolucao, fkVeiculo, fkLocalEmbarque }
-    var updates = [];
-
-    if (campos.statusReclamacao !== undefined) updates.push(`statusReclamacao = '${campos.statusReclamacao}'`);
-    if (campos.descricao !== undefined) updates.push(`descricao = '${campos.descricao}'`);
-    if (campos.dataHoraResolucao !== undefined) updates.push(`dataHoraResolucao = '${campos.dataHoraResolucao}'`);
-    if (campos.fkVeiculo !== undefined) updates.push(`fkVeiculo = ${campos.fkVeiculo === null ? 'NULL' : campos.fkVeiculo}`);
-    if (campos.fkLocalEmbarque !== undefined) updates.push(`fkLocalEmbarque = ${campos.fkLocalEmbarque === null ? 'NULL' : campos.fkLocalEmbarque}`);
-
-    if (updates.length === 0) {
-        return Promise.reject(new Error("Nenhum campo para atualizar"));
-    }
-
-    var instrucao = `
-        UPDATE reclamacao
-        SET ${updates.join(", ")}
-        WHERE idReclamacao = ${id};
-    `;
-    return database.executar(instrucao);
-}
-
-function deletar(id) {
-    var instrucao = `
-        DELETE FROM comentarios WHERE fkReclamacao = ${id};
-    `;
-    // primeiro deletar comentários relacionados (caso existam) e depois a reclamação
-    return database.executar(instrucao)
-        .then(() => {
-            var instr = `DELETE FROM reclamacao WHERE idReclamacao = ${id};`;
-            return database.executar(instr);
-        });
-}
-
+// ==================== LISTAR ====================
 function listarTodas() {
     var instrucao = `
         SELECT 
@@ -124,11 +10,50 @@ function listarTodas() {
             r.descricao,
             r.dataHoraCriacao,
             r.dataHoraResolucao,
+            r.fkVeiculo,
             r.fkLocalEmbarque,
+            r.fkUsuario,
+            u.nome AS usuarioNome,
             u.email AS usuarioEmail,
-            u.nivel_acesso AS usuarioNivel
+            v.tipoTransporte AS veiculoTipo,
+            v.tipoVeiculo AS veiculoModelo,
+            l.nome AS localNome,
+            l.linha_frota AS localLinha,
+            l.municipio AS localMunicipio
         FROM reclamacao r
         JOIN usuario u ON r.fkUsuario = u.idUsuario
+        LEFT JOIN veiculo v ON r.fkVeiculo = v.idVeiculo
+        LEFT JOIN localEmbarque l ON r.fkLocalEmbarque = l.idLocal
+        ORDER BY r.dataHoraCriacao DESC;
+    `;
+    return database.executar(instrucao);
+}
+
+// ==================== NOVA FUNÇÃO: LISTAR POR USUÁRIO ====================
+function listarPorUsuario(idUsuario) {
+    var instrucao = `
+        SELECT 
+            r.idReclamacao,
+            r.statusReclamacao,
+            r.tipo,
+            r.descricao,
+            r.dataHoraCriacao,
+            r.dataHoraResolucao,
+            r.fkVeiculo,
+            r.fkLocalEmbarque,
+            r.fkUsuario,
+            u.nome AS usuarioNome,
+            u.email AS usuarioEmail,
+            v.tipoTransporte AS veiculoTipo,
+            v.tipoVeiculo AS veiculoModelo,
+            l.nome AS localNome,
+            l.linha_frota AS localLinha,
+            l.municipio AS localMunicipio
+        FROM reclamacao r
+        JOIN usuario u ON r.fkUsuario = u.idUsuario
+        LEFT JOIN veiculo v ON r.fkVeiculo = v.idVeiculo
+        LEFT JOIN localEmbarque l ON r.fkLocalEmbarque = l.idLocal
+        WHERE r.fkUsuario = ${idUsuario}
         ORDER BY r.dataHoraCriacao DESC;
     `;
     return database.executar(instrucao);
@@ -143,19 +68,78 @@ function listarPorId(idReclamacao) {
             r.descricao,
             r.dataHoraCriacao,
             r.dataHoraResolucao,
+            r.fkVeiculo,
             r.fkLocalEmbarque,
+            r.fkUsuario,
+            u.nome AS usuarioNome,
             u.email AS usuarioEmail,
-            u.nivel_acesso AS usuarioNivel
+            v.tipoTransporte AS veiculoTipo,
+            v.tipoVeiculo AS veiculoModelo,
+            l.nome AS localNome,
+            l.linha_frota AS localLinha,
+            l.municipio AS localMunicipio,
+            l.tipo AS localEndereco
         FROM reclamacao r
         JOIN usuario u ON r.fkUsuario = u.idUsuario
-        WHERE r.idReclamacao = ?;
+        LEFT JOIN veiculo v ON r.fkVeiculo = v.idVeiculo
+        LEFT JOIN localEmbarque l ON r.fkLocalEmbarque = l.idLocal
+        WHERE r.idReclamacao = ${idReclamacao};
     `;
-    return database.executar(instrucao, [idReclamacao]);
+    return database.executar(instrucao);
+}
+
+// ==================== CRIAR ====================
+function criar(statusReclamacao, tipo, descricao, fkVeiculo, fkLocalEmbarque, fkUsuario) {
+    var statusEscapado = statusReclamacao || 'Pendente';
+    var tipoEscapado = tipo.replace(/'/g, "''");
+    var descricaoEscapada = descricao.replace(/'/g, "''");
+    
+    var instrucao = `
+        INSERT INTO reclamacao (
+            statusReclamacao, 
+            tipo, 
+            descricao, 
+            dataHoraCriacao, 
+            fkVeiculo, 
+            fkLocalEmbarque, 
+            fkUsuario
+        ) VALUES (
+            '${statusEscapado}',
+            '${tipoEscapado}',
+            '${descricaoEscapada}',
+            NOW(),
+            ${fkVeiculo || 'NULL'},
+            ${fkLocalEmbarque || 'NULL'},
+            ${fkUsuario}
+        );
+    `;
+    
+    console.log("SQL INSERT:", instrucao);
+    return database.executar(instrucao);
+}
+
+// ==================== ATUALIZAR ====================
+function atualizar(idReclamacao, tipo, descricao, fkVeiculo, fkLocalEmbarque, statusReclamacao) {
+    var tipoEscapado = tipo.replace(/'/g, "''");
+    var descricaoEscapada = descricao.replace(/'/g, "''");
+    
+    var instrucao = `
+        UPDATE reclamacao
+        SET tipo = '${tipoEscapado}',
+            descricao = '${descricaoEscapada}',
+            statusReclamacao = '${statusReclamacao}',
+            fkVeiculo = ${fkVeiculo || 'NULL'},
+            fkLocalEmbarque = ${fkLocalEmbarque || 'NULL'}
+        WHERE idReclamacao = ${idReclamacao};
+    `;
+    
+    console.log("SQL UPDATE:", instrucao);
+    return database.executar(instrucao);
 }
 
 function atualizarStatus(idReclamacao, novoStatus) {
     var instrucao;
-
+    
     if (novoStatus === 'Resolvido') {
         instrucao = `
             UPDATE reclamacao
@@ -170,20 +154,105 @@ function atualizarStatus(idReclamacao, novoStatus) {
             WHERE idReclamacao = ${idReclamacao};
         `;
     }
-
-    console.log("SQL a executar:", instrucao);
+    
+    console.log("SQL UPDATE STATUS:", instrucao);
     return database.executar(instrucao);
 }
 
+// ==================== DELETAR ====================
+function deletar(idReclamacao) {
+    var instrucaoComentarios = `
+        DELETE FROM comentarios 
+        WHERE fkReclamacao = ${idReclamacao};
+    `;
+    
+    return database.executar(instrucaoComentarios)
+        .then(() => {
+            var instrucao = `
+                DELETE FROM reclamacao 
+                WHERE idReclamacao = ${idReclamacao};
+            `;
+            return database.executar(instrucao);
+        });
+}
+
+// ==================== BUSCAR ====================
+function buscar(termo, idUsuario) {
+    var termoEscapado = termo.replace(/'/g, "''");
+    
+    var instrucao = `
+        SELECT 
+            r.idReclamacao,
+            r.statusReclamacao,
+            r.tipo,
+            r.descricao,
+            r.dataHoraCriacao,
+            r.fkVeiculo,
+            r.fkLocalEmbarque,
+            u.nome AS usuarioNome,
+            v.tipoTransporte AS veiculoTipo,
+            l.nome AS localNome,
+            l.linha_frota AS localLinha
+        FROM reclamacao r
+        JOIN usuario u ON r.fkUsuario = u.idUsuario
+        LEFT JOIN veiculo v ON r.fkVeiculo = v.idVeiculo
+        LEFT JOIN localEmbarque l ON r.fkLocalEmbarque = l.idLocal
+        WHERE r.fkUsuario = ${idUsuario}
+          AND (r.tipo LIKE '%${termoEscapado}%'
+           OR r.descricao LIKE '%${termoEscapado}%'
+           OR l.nome LIKE '%${termoEscapado}%'
+           OR l.linha_frota LIKE '%${termoEscapado}%'
+           OR v.tipoTransporte LIKE '%${termoEscapado}%')
+        ORDER BY r.dataHoraCriacao DESC;
+    `;
+    
+    return database.executar(instrucao);
+}
+
+// ==================== ESTATÍSTICAS ====================
+function obterEstatisticas(idUsuario) {
+    var instrucao = `
+        SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN statusReclamacao = 'Pendente' THEN 1 ELSE 0 END) as pendentes,
+            SUM(CASE WHEN statusReclamacao = 'Em andamento' THEN 1 ELSE 0 END) as emAndamento,
+            SUM(CASE WHEN statusReclamacao = 'Resolvido' THEN 1 ELSE 0 END) as resolvidas
+        FROM reclamacao
+        WHERE fkUsuario = ${idUsuario}
+          AND dataHoraCriacao >= DATE_SUB(NOW(), INTERVAL 30 DAY);
+    `;
+    return database.executar(instrucao);
+}
+
+// ==================== LISTAR VEÍCULOS E LOCAIS ====================
+function listarVeiculos() {
+    var instrucao = `
+        SELECT idVeiculo, tipoTransporte, tipoVeiculo, statusAcessibilidade
+        FROM veiculo
+        ORDER BY tipoTransporte, tipoVeiculo;
+    `;
+    return database.executar(instrucao);
+}
+
+function listarLocais() {
+    var instrucao = `
+        SELECT idLocal, nome, municipio, linha_frota, tipo
+        FROM localEmbarque
+        ORDER BY nome;
+    `;
+    return database.executar(instrucao);
+}
 
 module.exports = {
-    listar,
-    listarPorUsuario,
-    buscarPorId,
-    inserir,
-    editar,
-    deletar,
     listarTodas,
+    listarPorUsuario,
     listarPorId,
-    atualizarStatus
+    criar,
+    atualizar,
+    atualizarStatus,
+    deletar,
+    buscar,
+    obterEstatisticas,
+    listarVeiculos,
+    listarLocais
 };

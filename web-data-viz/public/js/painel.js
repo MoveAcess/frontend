@@ -17,18 +17,19 @@ document.addEventListener('DOMContentLoaded', function () {
     setupEventListeners();
 });
 
-// Função para carregar dados do usuário do sessionStorage
+// ==================== VALIDAÇÃO DE ACESSO ====================
 function loadUserFromSession() {
     const idUsuario = sessionStorage.getItem('ID_USUARIO');
     const nomeUsuario = sessionStorage.getItem('NOME_USUARIO');
-    const nivelAcesso = sessionStorage.getItem('NIVEL_USUARIO'); // Usando NIVEL_USUARIO
+    const nivelAcesso = sessionStorage.getItem('NIVEL_USUARIO');
     
-    console.log('SessionStorage:', { idUsuario, nomeUsuario, nivelAcesso });
+    console.log('🔐 Verificando sessionStorage:', { idUsuario, nomeUsuario, nivelAcesso });
     
     // Verificar se o usuário está logado
     if (!idUsuario || !nivelAcesso) {
+        console.error('❌ Usuário não logado - redirecionando para login');
         alert('Você precisa fazer login primeiro!');
-        window.location.href = '../html/login.html';
+        window.location.href = '../index.html';
         return false;
     }
     
@@ -37,50 +38,60 @@ function loadUserFromSession() {
     currentUserNivel = parseInt(nivelAcesso);
     currentUserNome = nomeUsuario;
     
-    // Verificar se é admin (nível 1 ou 2)
-    if (currentUserNivel !== 1 && currentUserNivel !== 2) {
-        alert('Acesso negado! Apenas administradores (nível 1 ou 2) podem acessar este painel.');
-        window.location.href = '../html/dashboard.html'; // Redirecionar para página do usuário comum
-        return false;
-    }
-    
-    console.log('✅ Usuário autenticado:', {
+    console.log('👤 Dados do usuário:', {
         id: currentUserId,
         nome: currentUserNome,
         nivel: currentUserNivel
     });
     
+    // Verificar se é admin (nível 1 ou 2)
+    if (currentUserNivel !== 1 && currentUserNivel !== 2) {
+        console.error('❌ Acesso negado - Nível:', currentUserNivel);
+        alert('Acesso negado! Apenas administradores (nível 1 ou 2) podem acessar este painel.');
+        window.location.href = 'mural.html'; // Redirecionar para dashboard do usuário
+        return false;
+    }
+    
+    console.log('✅ Usuário autorizado - Nível', currentUserNivel);
     return true;
 }
 
 // ==================== CARREGAR RECLAMAÇÕES ====================
 function loadComplaints() {
+    console.log('📋 Carregando todas as reclamações (admin)...');
+    
+    // Admins veem TODAS as reclamações - não precisa passar idUsuario
     fetch(`${API_BASE_URL}/reclamacoes`)
         .then(res => {
+            console.log('📡 Resposta da API:', res.status);
             if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
             return res.json();
         })
         .then(data => {
+            console.log('✅ Reclamações recebidas:', data.length);
+            
             complaints = data.map(r => ({
                 id: r.idReclamacao,
                 idOriginal: r.idReclamacao,
                 date: formatDate(r.dataHoraCriacao),
                 time: formatTime(r.dataHoraCriacao),
                 type: r.tipo || 'Não especificado',
-                location: 'Local não especificado',
+                location: r.localNome || r.veiculoTipo || 'Local não especificado',
                 priority: definePriority(r.tipo),
                 status: r.statusReclamacao,
                 description: r.descricao || 'Sem descrição',
                 usuarioEmail: r.usuarioEmail,
-                usuarioNivel: r.usuarioNivel,
+                usuarioNome: r.usuarioNome,
+                fkUsuario: r.fkUsuario,
                 comments: []
             }));
+            
             updateStats();
             renderComplaints();
         })
         .catch(err => {
-            console.error("Erro:", err);
-            alert("Erro ao carregar reclamações!");
+            console.error("❌ Erro ao carregar reclamações:", err);
+            alert("Erro ao carregar reclamações: " + err.message);
         });
 }
 
@@ -151,7 +162,9 @@ function renderComplaints() {
             c.id.toString().includes(searchLower) ||
             c.type.toLowerCase().includes(searchLower) ||
             c.location.toLowerCase().includes(searchLower) ||
-            c.description.toLowerCase().includes(searchLower)
+            c.description.toLowerCase().includes(searchLower) ||
+            (c.usuarioEmail && c.usuarioEmail.toLowerCase().includes(searchLower)) ||
+            (c.usuarioNome && c.usuarioNome.toLowerCase().includes(searchLower))
         );
     }
     
@@ -165,7 +178,7 @@ function renderComplaints() {
     
     tbody.innerHTML = filtered.map(complaint => `
         <tr id="row-${complaint.idOriginal}">
-            <td><span class="complaint-id">REC-${complaint.id}</span></td>
+            <td><span class="complaint-id">REC-${String(complaint.id).padStart(4, '0')}</span></td>
             <td>
                 <div class="datetime-cell">
                     <span class="date">${complaint.date}</span>
@@ -173,7 +186,11 @@ function renderComplaints() {
                 </div>
             </td>
             <td><span class="type-badge">${complaint.type}</span></td>
-            <td>${complaint.location}</td>
+            <td>
+                ${complaint.location}
+                <br>
+                <small style="color: #6b7280;">Por: ${complaint.usuarioEmail || complaint.usuarioNome || 'Usuário'}</small>
+            </td>
             <td><span class="priority-badge priority-${complaint.priority.toLowerCase()}">${complaint.priority}</span></td>
             <td>
                 <div class="status-selector">
@@ -227,7 +244,7 @@ function renderComplaints() {
             <td colspan="8">
                 <div class="comments-section" id="comments-section-${complaint.idOriginal}">
                     <div class="comments-header">
-                        <h4>💬 Comentários - REC-${complaint.id}</h4>
+                        <h4>💬 Comentários - REC-${String(complaint.id).padStart(4, '0')}</h4>
                         <button class="close-comments-btn" onclick="toggleComments(${complaint.idOriginal})">✕</button>
                     </div>
                     <div class="comments-list" id="comments-list-${complaint.idOriginal}">
@@ -253,7 +270,6 @@ function toggleComments(id) {
     const commentsRow = document.getElementById(`comments-row-${id}`);
     const isVisible = commentsRow.style.display !== 'none';
     
-    // Fechar todos os outros
     document.querySelectorAll('.comments-row').forEach(row => {
         row.style.display = 'none';
     });
@@ -270,9 +286,7 @@ function loadComments(idReclamacao) {
     
     fetch(`${API_BASE_URL}/reclamacoes/${idReclamacao}/comentarios`)
         .then(res => {
-            if (!res.ok) {
-                throw new Error(`Erro HTTP ${res.status}: ${res.statusText}`);
-            }
+            if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
             return res.json();
         })
         .then(comments => {
@@ -281,7 +295,6 @@ function loadComments(idReclamacao) {
                 return;
             }
             
-            // Admin pode ver todos os comentários, mas só editar/deletar os seus
             commentsList.innerHTML = comments.map(c => {
                 const isMyComment = (c.idUsuario === currentUserId);
                 
@@ -316,7 +329,7 @@ function loadComments(idReclamacao) {
         })
         .catch(err => {
             console.error("Erro ao carregar comentários:", err);
-            commentsList.innerHTML = `<div class="error-comments">Erro: ${err.message}<br><small>Verifique se a rota está configurada corretamente</small></div>`;
+            commentsList.innerHTML = `<div class="error-comments">Erro: ${err.message}</div>`;
         });
 }
 
@@ -326,11 +339,6 @@ function addComment(idReclamacao) {
     
     if (!texto) {
         alert("Digite um comentário!");
-        return;
-    }
-    
-    if (!currentUserId) {
-        alert("Erro ao identificar usuário. Faça login novamente.");
         return;
     }
     
@@ -354,7 +362,6 @@ function addComment(idReclamacao) {
 }
 
 function editComment(idComentario, textoAtual) {
-    const commentText = document.getElementById(`comment-text-${idComentario}`);
     const novoTexto = prompt("Editar comentário:", textoAtual);
     
     if (novoTexto === null || novoTexto.trim() === '') return;
@@ -369,7 +376,7 @@ function editComment(idComentario, textoAtual) {
         return res.json();
     })
     .then(() => {
-        commentText.textContent = novoTexto.trim();
+        document.getElementById(`comment-text-${idComentario}`).textContent = novoTexto.trim();
         alert('Comentário editado com sucesso!');
     })
     .catch(err => {
@@ -436,10 +443,11 @@ function updateStatus(id, newStatus, event) {
 function viewComplaint(id) {
     const complaint = complaints.find(c => c.idOriginal === id);
     if (complaint) {
-        alert(`Reclamação #${complaint.id}\nStatus: ${complaint.status}\nTipo: ${complaint.type}\nDescrição: ${complaint.description}`);
+        alert(`Reclamação #REC-${String(complaint.id).padStart(4, '0')}\n\nStatus: ${complaint.status}\nTipo: ${complaint.type}\nLocal: ${complaint.location}\nPrioridade: ${complaint.priority}\nUsuário: ${complaint.usuarioEmail}\n\nDescrição: ${complaint.description}`);
     }
 }
 
+// ==================== EVENT LISTENERS ====================
 function setupEventListeners() {
     document.addEventListener('click', function() {
         document.querySelectorAll('.status-menu').forEach(menu => menu.classList.remove('show'));

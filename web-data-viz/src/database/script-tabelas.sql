@@ -1,5 +1,3 @@
-script-tabelas.sql
-
 create database moveacess;
 
 use moveacess;
@@ -8,7 +6,8 @@ create table veiculo (
 idVeiculo int primary key auto_increment,
 tipoTransporte varchar(45),
 tipoVeiculo varchar(45),
-statusAcessibilidade varchar(45)
+statusAcessibilidade varchar(45),
+ano date
 );
 
 create table localEmbarque (
@@ -16,7 +15,8 @@ idLocal int primary key auto_increment,
 nome varchar(45),
 municipio varchar(45),
 linha_frota varchar(45),
-endereco varchar(45)
+tipo text,
+ano date
 );
 
 create table registro_logs (
@@ -64,32 +64,15 @@ foreign key (fkUsuario) references usuario(idUsuario)
 
 select * from usuario;
 
-INSERT INTO usuario (nivel_acesso, email, senha)
+INSERT INTO usuario (nome, nivel_acesso, email, senha)
 VALUES 
-(1, 'bia@gmail.com', '1234');
+('beatriz', 1,'bia@gmail.com', '1234');
 
-INSERT INTO veiculo (tipoTransporte, tipoVeiculo, statusAcessibilidade)
-VALUES
-('Ônibus', 'Ônibus Urbano', 'Acessível'),
-('Ônibus', 'Micro-Ônibus', 'Parcialmente acessível'),
-('Ônibus', 'BRT', 'Acessível'),
-('Trem', 'CPTM Linha 9', 'Acessível'),
-('Metrô', 'Linha Amarela', 'Acessível'),
-('Metrô', 'Linha Vermelha', 'Parcialmente acessível'),
-('VLT', 'VLT Baixada Santista', 'Acessível'),
-('Ônibus', 'Ônibus Urbano', 'Não acessível');
+INSERT INTO veiculo (tipoTransporte, tipoVeiculo, statusAcessibilidade, ano) VALUES 
+('Ônibus', 'Convencional', 'Com problemas', '2020-01-01');
 
-INSERT INTO localEmbarque (nome, municipio, linha_frota, endereco)
-VALUES
-('Terminal Santo Amaro', 'São Paulo', 'Ônibus – Linhas 695T, 6701, 5119', 'Av. Padre José Maria, 300'),
-('Estação Luz', 'São Paulo', 'Metrô – Linha Azul / CPTM', 'Praça da Luz, 1'),
-('Terminal Barra Funda', 'São Paulo', 'Ônibus – Linhas Intermunicipais', 'Rua Bento Teobaldo Ferraz, 119'),
-('Estação Sé', 'São Paulo', 'Metrô – Linhas Azul e Vermelha', 'Praça da Sé, s/n'),
-('Terminal Jabaquara', 'São Paulo', 'Ônibus – Intermunicipal', 'Rua dos Jequitibás, 20'),
-('Ponto Avenida Paulista', 'São Paulo', 'Ônibus – Linhas 875A, 875P', 'Av. Paulista, 1578'),
-('Estação Vila Prudente', 'São Paulo', 'Metrô – Linha Verde', 'Av. Anhaia Mello, 1000'),
-('Terminal Diadema', 'Diadema', 'Ônibus – EMTU BRT10', 'Av. Doutor Ulysses Guimarães, 200');
-
+INSERT INTO localEmbarque (nome, municipio, linha_frota, tipo, ano) VALUES 
+('Estação Sé', 'São Paulo', 'Linha 1', 'Elevador inoperante', '2020-01-01');
 
 INSERT INTO reclamacao 
 (statusReclamacao, tipo, descricao, dataHoraCriacao, dataHoraResolucao, fkVeiculo, fkLocalEmbarque, fkUsuario)
@@ -112,12 +95,6 @@ VALUES
 
 select * from reclamacao;
 select * from comentarios;
-
-
--- Atualizar o usuário existente com um nome
-UPDATE usuario 
-SET nome = 'Beatriz' 
-WHERE email = 'bia@gmail.com';
 
 -- Verificar a alteração
 SELECT * FROM usuario;
@@ -185,42 +162,44 @@ VALUES (3, 1, 'Precisamos identificar o número do veículo para reportar à emp
 INSERT INTO comentarios (fkReclamacao, fkUsuario, comentario, dataHoraComentario)
 VALUES (4, 3, 'Várias peças soltas na área próxima à catraca. Risco de queda!', NOW());
 
--- Inserir estações na tabela localEmbarque
-INSERT INTO localEmbarque (nome, municipio, linha_frota, endereco) VALUES
-('Aeroporto - Guarulhos', 'Guarulhos', '13', 'Aeroporto Internacional'),
-('Água Branca', 'São Paulo', '7', 'Av. Santa Marina'),
-('Antonio Gianetti Neto', 'São Paulo', '11', 'Av. Antonio Gianetti Neto'),
-('Aracaré', 'São Paulo', '12', 'Rua Aracaré'),
-('Baltazar Fidélis', 'São Paulo', '7', 'Rua Baltazar Fidélis'),
-('Botujuru', 'São Paulo', '7', 'Estação Botujuru'),
-('Brás', 'São Paulo', '7 | 10 | 11 | 12', 'Praça Agente Cícero'),
-('Braz Cubas', 'Mogi das Cruzes', '11', 'Av. Braz Cubas'),
-('Caieiras', 'Caieiras', '7', 'Estação Caieiras'),
-('Campo Limpo Paulista', 'Campo Limpo Paulista', '7', 'Estação Campo Limpo'),
-('Vila Aurora', 'São Paulo', '7', 'Av. Vila Aurora');
+select * from registro_logs;
+select * from veiculo;
+select * from localEmbarque;
 
--- Inserir veículos na tabela veiculo
-INSERT INTO veiculo (tipoTransporte, tipoVeiculo, statusAcessibilidade) VALUES
-('Trem/Metrô', 'Linha 13', 'Totalmente Acessível'),
-('Trem/Metrô', 'Linha 13', 'Parcialmente Acessível'),
-('Trem/Metrô', 'Linha 7', 'Totalmente Acessível'),
-('Trem/Metrô', 'Linha 7', 'Parcialmente Acessível'),
-('Trem/Metrô', 'Linha 12', 'Totalmente Acessível'),
-('Trem/Metrô', 'Linha 12', 'Parcialmente Acessível'),
-('Trem/Metrô', 'Linha 12', 'Em Adaptação'),
-('Trem/Metrô', 'Linha 12 | 13', 'Totalmente Acessível'),
-('Trem/Metrô', 'Linha 12 | 13', 'Parcialmente Acessível'),
-('Trem/Metrô', 'Linha 12 | 13', 'Em Adaptação');
+select (SELECT COUNT(*) FROM reclamacao 
+             WHERE (tipo LIKE '%Elevador%' OR tipo LIKE '%elevador%') 
+             AND statusReclamacao IN ('Pendente', 'Em andamento')) as elevadores_inoperantes;
+             
+             -- VERIFIQUE SE OS DADOS DO JAR ESTÃO NO BANCO:
 
--- Adicionar mais veículos para ter dados suficientes
-INSERT INTO veiculo (tipoTransporte, tipoVeiculo, statusAcessibilidade) VALUES
-('Ônibus', 'Ônibus Urbano', 'Acessível'),
-('Ônibus', 'Ônibus Urbano', 'Acessível'),
-('Ônibus', 'Ônibus Urbano', 'Acessível'),
-('Ônibus', 'Ônibus Urbano', 'Parcialmente acessível'),
-('Ônibus', 'Ônibus Urbano', 'Parcialmente acessível'),
-('Ônibus', 'Ônibus Urbano', 'Não acessível'),
-('Ônibus', 'Micro-Ônibus', 'Acessível'),
-('Ônibus', 'Micro-Ônibus', 'Parcialmente acessível'),
-('Metrô', 'Linha Azul', 'Acessível'),
-('Metrô', 'Linha Vermelha', 'Parcialmente acessível');
+-- 1. Verifique a tabela localEmbarque (dados da planilha Excel)
+SELECT COUNT(*) as total_estacoes, 
+       YEAR(ano) as ano, 
+       COUNT(*) as registros_por_ano 
+FROM localEmbarque 
+GROUP BY YEAR(ano) 
+ORDER BY ano;
+
+-- 2. Verifique estações totalmente acessíveis por ano (para o gráfico de evolução)
+SELECT YEAR(ano) as ano, 
+       COUNT(*) as totalmente_acessiveis
+FROM localEmbarque 
+WHERE tipo LIKE '%Totalmente Acessível%'
+GROUP BY YEAR(ano)
+ORDER BY ano;
+
+-- 3. Verifique veículos
+SELECT statusAcessibilidade, COUNT(*) as quantidade 
+FROM veiculo 
+GROUP BY statusAcessibilidade;
+
+-- 4. Verifique reclamações sobre elevadores
+SELECT statusReclamacao, COUNT(*) as quantidade 
+FROM reclamacao 
+WHERE (tipo LIKE '%Elevador%' OR descricao LIKE '%Elevador%')
+GROUP BY statusReclamacao;
+
+-- 5. Verifique reclamações dos últimos 30 dias
+SELECT COUNT(*) as reclamacoes_30_dias
+FROM reclamacao 
+WHERE dataHoraCriacao >= DATE_SUB(NOW(), INTERVAL 30 DAY);

@@ -1,4 +1,5 @@
 // sessão
+// sessão
 function validarSessao() {
     var email = sessionStorage.EMAIL_USUARIO;
     var nome = sessionStorage.NOME_USUARIO;
@@ -7,14 +8,29 @@ function validarSessao() {
 
     var b_usuario = document.getElementById("b_usuario");
 
-        if (nivel == 1) {
-            document.getElementById("btnNovaReclamacao").remove();
+    if (email != null && nome != null && id != null && nivel != null) {
+        // MOSTRAR/OCULTAR ITEM PAINEL NO MENU LATERAL
+        var menuPainel = document.getElementById("menuPainel");
+        if (menuPainel) {
+            // Mostrar apenas para níveis 1 e 2
+            if (nivel == 1 || nivel == 2) {
+                menuPainel.style.display = "flex"; // ou "block" dependendo do seu CSS
+            } else {
+                menuPainel.style.display = "none";
+            }
         }
 
-    if (email != null && nome != null && id != null && nivel != null) {
-            if (b_usuario) {   
-                b_usuario.innerHTML = id + " - " + nome + " - " + nivel;
+        if (nivel == 1) {
+            // Remover botão de nova reclamação se existir
+            var btnNovaReclamacao = document.getElementById("btnNovaReclamacao");
+            if (btnNovaReclamacao) {
+                btnNovaReclamacao.remove();
             }
+        }
+
+        if (b_usuario) {
+            b_usuario.innerHTML = id + " - " + nome + " - " + nivel;
+        }
     } else {
         window.location = "../login.html";
     }

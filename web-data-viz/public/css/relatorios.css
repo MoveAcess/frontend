@@ -14,6 +14,7 @@ html {
 
 body {
   font-family: 'Montserrat', sans-serif;
+  background-color: #F5F7FA;
   overflow-y: scroll;
 }
 
@@ -26,21 +27,26 @@ body {
   -ms-overflow-style: none;
 }
 
+/* CONTAINER PRINCIPAL COM SIDEBAR FIXO */
 .dashboard {
   display: flex;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
-/* Sidebar */
+/* SIDEBAR FIXO - MESMO ESTILO DO DASHBOARD */
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 260px;
+  height: 100vh;
   background: white;
   border-right: 1px solid #e5e7eb;
   padding: 24px 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease-in-out;
-  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -57,10 +63,6 @@ body {
   border-bottom: 1px solid #e5e7eb;
 }
 
-#sair {
-  margin-top: 340px;
-}
-
 .logo {
   display: flex;
   align-items: center;
@@ -68,7 +70,7 @@ body {
   color: #1f2937;
   font-weight: 600;
   font-size: 18px;
-  margin-left: 45px;
+  justify-content: center;
 }
 
 .logo i {
@@ -81,9 +83,9 @@ body {
 
 .nav-menu {
   padding: 24px 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
 }
 
 .nav-item {
@@ -113,22 +115,32 @@ body {
   text-align: center;
 }
 
-/* Main Content */
+/* Sair no final do menu */
+#sair {
+  margin-top: auto;
+  margin-bottom: 24px;
+}
+
+/* CONTEÚDO PRINCIPAL */
 .main-content {
+  margin-left: 260px;
   flex: 1;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 /* Header */
 .header {
+  position: sticky;
+  top: 0;
   background: white;
   padding: 16px 24px;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  z-index: 90;
 }
 
 .header h1 {
@@ -152,6 +164,7 @@ body {
   -ms-overflow-style: none;
 }
 
+/* Estatísticas */
 .stats-grid-wrapper {
   margin-bottom: 32px;
   background: white;
@@ -302,8 +315,7 @@ body {
   vertical-align: top;
 }
 
-/* Resto das estilizações (badges, etc.) */
-
+/* Menu Hamburguer */
 .nav-toggle {
   display: none;
   flex-direction: column;
@@ -325,50 +337,21 @@ body {
   transition: all 0.3s ease;
 }
 
-.nav-toggle:hover,
-.nav-toggle:focus {
-  background: transparent !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-.menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: #1f2937;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.menu-toggle:hover {
-  background-color: #f3f4f6;
-}
-
-/* Media Queries */
+/* Responsive */
 @media (max-width: 992px) {
   .nav-toggle {
     display: flex !important;
   }
 
   .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 300px;
     transform: translateX(-100%);
-    z-index: 1000;
-    background: white;
-    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease-in-out;
+    width: 280px;
   }
 
   .sidebar.open {
     transform: translateX(0);
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
   }
 
   .main-content {
@@ -381,7 +364,7 @@ body {
   }
 
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .search-box {
@@ -396,6 +379,10 @@ body {
 
   .stats-grid-wrapper {
     padding: 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 
   .reclamacoes-table th, .reclamacoes-table td {
@@ -439,8 +426,14 @@ body {
   .search-box input {
     font-size: 14px;
   }
+}
 
-  .pagination-btn {
-    padding: 6px 10px;
-  }
+/* REMOVER BARRA DE ROLAGEM DE TODOS OS ELEMENTOS */
+*::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }

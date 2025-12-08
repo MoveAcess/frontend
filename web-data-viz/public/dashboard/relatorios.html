@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,9 +8,237 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/relatorios.css">
     <script src="../js/sessao.js"></script>
-</head>
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
 
-<body onload="validarSessao()">
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #1f2937;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            cursor: pointer;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .action-btn.edit {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.edit:hover {
+            background-color: #2563eb;
+        }
+
+        .action-btn.delete {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .action-btn.delete:hover {
+            background-color: #dc2626;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .success-message {
+            background-color: #d1fae5;
+            color: #065f46;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+    </style>
+</head>
+<body onload="validarSessao(); carregarDados();">
     <div class="dashboard">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
@@ -20,19 +247,19 @@
                     <img src="../assets/imgs/logo.svg" alt="" width="120px">
                 </div>
             </div>
-
             <nav class="nav-menu">
                 <a href="perfil.html" class="nav-item">
                     <i class="fa fa-user-circle-o"></i>
                     <span>Perfil</span>
                 </a>
+                <!-- ITEM PAINEL - APENAS PARA NÍVEIS 1 E 2 -->
+                <a href="painel.html" class="nav-item" id="menuPainel" style="display: none;">
+                    <i class="fas fa-cogs"></i>
+                    <span>Painel</span>
+                </a>
                 <a href="mural.html" class="nav-item">
                     <i class="fas fa-chart-bar"></i>
                     <span>Dashboard</span>
-                </a>
-                <a href="mapa.html" class="nav-item">
-                    <i class="fa-regular fa-map"></i>
-                    <span>Mapas</span>
                 </a>
                 <a href="relatorios.html" class="nav-item active">
                     <i class="fas fa-chart-line"></i>
@@ -57,107 +284,537 @@
                 </div>
             </header>
 
-
-            <!-- Content -->
             <main class="content">
-
-                <!-- NOVO: Container de GRID para os 4 cards (100% de largura no topo) -->
+                <!-- Cards de Estatísticas -->
                 <div class="stats-grid-wrapper">
                     <div class="stats-grid">
-
-                        <!-- Card 1: Total de Reclamações -->
                         <div class="status-card status-total">
                             <div class="status-card-icon">
                                 <i class="fas fa-file-alt"></i>
                             </div>
                             <div class="status-label">Total de Reclamações</div>
-                            <div class="status-number">187</div>
+                            <div class="status-number" id="total-reclamacoes">0</div>
                             <div class="status-subtitle">Últimos 30 dias</div>
                         </div>
 
-                        <!-- Card 2: Pendentes -->
                         <div class="status-card status-pendente">
                             <div class="status-card-icon">
                                 <i class="fas fa-exclamation-circle"></i>
                             </div>
                             <div class="status-label">Pendentes</div>
-                            <div class="status-number">45</div>
+                            <div class="status-number" id="total-pendentes">0</div>
                             <div class="status-subtitle">Aguardando resolução</div>
                         </div>
 
-                        <!-- Card 3: Em Andamento -->
                         <div class="status-card status-andamento">
                             <div class="status-card-icon">
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="status-label">Em Andamento</div>
-                            <div class="status-number">89</div>
+                            <div class="status-number" id="total-andamento">0</div>
                             <div class="status-subtitle">Sendo resolvidas</div>
                         </div>
 
-                        <!-- Card 4: Resolvidas -->
                         <div class="status-card status-resolvido">
                             <div class="status-card-icon">
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="status-label">Resolvidas</div>
-                            <div class="status-number">53</div>
-                            <div class="status-subtitle">Taxa de resolução: 28%</div>
+                            <div class="status-number" id="total-resolvidas">0</div>
+                            <div class="status-subtitle" id="taxa-resolucao">Taxa de resolução: 0%</div>
                         </div>
                     </div>
                 </div>
-                <!-- Fim do stats-grid-wrapper -->
 
-                <!-- Main Content (Tabela) -->
+                <!-- Tabela de Reclamações -->
                 <div class="main-content-reclamacoes">
                     <div class="section-header">
                         <h2 class="section-title">Relatório de Reclamações</h2>
                         <div style="display: flex; align-items: center; gap: 16px;">
                             <div class="search-box">
                                 <i class="fas fa-search" style="color: #9ca3af;"></i>
-                                <input type="text" placeholder="Buscar por ID, tipo ou local...">
+                                <input type="text" id="search-input" placeholder="Buscar por ID, tipo ou local...">
                             </div>
-                            <button class="btn-nova-reclamacao" id="btnNovaReclamacao">
+                            <button class="btn-nova-reclamacao" onclick="abrirModalCriar()">
                                 <i class="fas fa-plus"></i>
                                 Nova Reclamação
                             </button>
                         </div>
                     </div>
 
-                    <!-- Tabela de Reclamações -->
-                    <table class="reclamacoes-table">
+                    <div id="error-container" class="error-message"></div>
+                    <div id="success-container" class="success-message"></div>
+
+                    <div id="loading" class="loading">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                        <p>Carregando reclamações...</p>
+                    </div>
+
+                    <table class="reclamacoes-table" id="tabela-reclamacoes" style="display: none;">
                         <thead>
                             <tr>
-                                <th style="width: 120px;">ID</th>
+                                <th style="width: 100px;">ID</th>
                                 <th style="width: 140px;">Data/Hora</th>
-                                <th style="width: 120px;">Tipo</th>
-                                <th style="width: 150px;">Local</th>
-                                <th style="width: 100px;">Prioridade</th>
+                                <th style="width: 150px;">Tipo</th>
+                                <th style="width: 180px;">Local/Veículo</th>
                                 <th style="width: 120px;">Status</th>
                                 <th>Descrição</th>
+                                <th style="width: 140px;">Ações</th>
                             </tr>
                         </thead>
-
-                        <tbody id="tabela_reclamacoes"></tbody>
+                        <tbody id="tbody-reclamacoes">
+                        </tbody>
                     </table>
-
-                    <div class="pagination">
-                        <div class="pagination-info">Mostrando 1 a 10 de 187 resultados</div>
-                        <div class="pagination-controls">
-                            <button class="pagination-btn">Anterior</button>
-                            <button class="pagination-btn active">1</button>
-                            <button class="pagination-btn">2</button>
-                            <button class="pagination-btn">Próximo</button>
-                        </div>
-                    </div>
                 </div>
             </main>
         </div>
     </div>
 
-     <script src="../js/relatorios.js"></script>
-     
+    <!-- Modal Criar/Editar Reclamação -->
+    <div id="modal-reclamacao" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Nova Reclamação</h2>
+                <button class="close-btn" onclick="fecharModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-reclamacao">
+                    <input type="hidden" id="reclamacao-id">
+
+                    <div class="form-group">
+                        <label for="tipo">Tipo de Reclamação *</label>
+                        <input type="text" id="tipo" placeholder="Ex: Elevador Inoperante, Rampa de Acesso..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descricao">Descrição *</label>
+                        <textarea id="descricao" placeholder="Descreva o problema em detalhes..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Relacionado a: *</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="check-veiculo" onchange="toggleSelects()">
+                                <label for="check-veiculo" style="margin: 0; font-weight: normal;">Veículo</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="check-local" onchange="toggleSelects()">
+                                <label for="check-local" style="margin: 0; font-weight: normal;">Local de Embarque</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="group-veiculo" style="display: none;">
+                        <label for="fkVeiculo">Selecionar Veículo</label>
+                        <select id="fkVeiculo"></select>
+                    </div>
+
+                    <div class="form-group" id="group-local" style="display: none;">
+                        <label for="fkLocalEmbarque">Selecionar Local de Embarque</label>
+                        <select id="fkLocalEmbarque"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="statusReclamacao">Status</label>
+                        <select id="statusReclamacao">
+                            <option value="Pendente">Pendente</option>
+                            <option value="Em andamento">Em Andamento</option>
+                            <option value="Resolvido">Resolvido</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="salvarReclamacao()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        const API_URL = 'http://localhost:8080/reclamacoes';
+        let veiculos = [];
+        let locais = [];
+        let modoEdicao = false;
+
+        // ==================== FUNÇÃO PARA PEGAR ID DO USUÁRIO ====================
+        function obterIdUsuario() {
+            const idUsuario = sessionStorage.getItem('ID_USUARIO');
+            
+            if (!idUsuario) {
+                console.error('❌ ID do usuário não encontrado no sessionStorage');
+                mostrarErro('Sessão expirada. Por favor, faça login novamente.');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 2000);
+                return null;
+            }
+            
+            console.log('✅ ID do usuário:', idUsuario);
+            return idUsuario;
+        }
+
+        // ==================== CARREGAR DADOS INICIAIS ====================
+        async function carregarDados() {
+            try {
+                const idUsuario = obterIdUsuario();
+                if (!idUsuario) return;
+                
+                console.log('🔄 Iniciando carregamento de dados...');
+                console.log('📡 API URL:', API_URL);
+                console.log('👤 ID Usuário:', idUsuario);
+                
+                await Promise.all([
+                    carregarEstatisticas(idUsuario),
+                    carregarReclamacoes(idUsuario),
+                    carregarVeiculos(),
+                    carregarLocais()
+                ]);
+                
+                console.log('✅ Dados carregados com sucesso!');
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados:', error);
+                mostrarErro('Erro ao carregar dados iniciais: ' + error.message);
+            }
+        }
+
+        // ==================== CARREGAR ESTATÍSTICAS ====================
+        async function carregarEstatisticas(idUsuario) {
+            try {
+                console.log('📊 Carregando estatísticas...');
+                const response = await fetch(`${API_URL}/estatisticas?idUsuario=${idUsuario}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const stats = await response.json();
+                console.log('📊 Estatísticas recebidas:', stats);
+                
+                document.getElementById('total-reclamacoes').textContent = stats.total || 0;
+                document.getElementById('total-pendentes').textContent = stats.pendentes || 0;
+                document.getElementById('total-andamento').textContent = stats.emAndamento || 0;
+                document.getElementById('total-resolvidas').textContent = stats.resolvidas || 0;
+                
+                const taxa = stats.total > 0 ? Math.round((stats.resolvidas / stats.total) * 100) : 0;
+                document.getElementById('taxa-resolucao').textContent = `Taxa de resolução: ${taxa}%`;
+            } catch (error) {
+                console.error('❌ Erro ao carregar estatísticas:', error);
+                throw error;
+            }
+        }
+
+        // ==================== CARREGAR RECLAMAÇÕES ====================
+        async function carregarReclamacoes(idUsuario) {
+            try {
+                if (!idUsuario) {
+                    idUsuario = obterIdUsuario();
+                    if (!idUsuario) return;
+                }
+                
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('tabela-reclamacoes').style.display = 'none';
+                
+                console.log('📋 Carregando reclamações do usuário:', idUsuario);
+                const response = await fetch(`${API_URL}?idUsuario=${idUsuario}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const reclamacoes = await response.json();
+                console.log('📋 Reclamações recebidas:', reclamacoes.length);
+                
+                const tbody = document.getElementById('tbody-reclamacoes');
+                tbody.innerHTML = '';
+                
+                if (reclamacoes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Nenhuma reclamação encontrada</td></tr>';
+                } else {
+                    reclamacoes.forEach(rec => {
+                        tbody.innerHTML += criarLinhaTabela(rec);
+                    });
+                }
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('tabela-reclamacoes').style.display = 'table';
+            } catch (error) {
+                console.error('❌ Erro ao carregar reclamações:', error);
+                mostrarErro('Erro ao carregar reclamações: ' + error.message);
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // ==================== CRIAR LINHA DA TABELA ====================
+        function criarLinhaTabela(rec) {
+            const dataFormatada = new Date(rec.dataHoraCriacao).toLocaleString('pt-BR');
+            const localOuVeiculo = rec.localNome 
+                ? `${rec.localNome} - ${rec.localLinha || ''}`
+                : (rec.veiculoTipo ? `${rec.veiculoTipo} - ${rec.veiculoModelo || ''}` : 'N/A');
+            const statusClass = rec.statusReclamacao.toLowerCase().replace(' ', '-');
+            
+            return `
+                <tr>
+                    <td><div class="reclamacao-id">REC-${String(rec.idReclamacao).padStart(4, '0')}</div></td>
+                    <td><div class="reclamacao-data">${dataFormatada}</div></td>
+                    <td><span class="tipo-badge">${rec.tipo}</span></td>
+                    <td>${localOuVeiculo}</td>
+                    <td><span class="status-badge status-${statusClass}">${rec.statusReclamacao}</span></td>
+                    <td><div class="reclamacao-descricao">${rec.descricao}</div></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="editarReclamacao(${rec.idReclamacao})" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" onclick="confirmarExclusao(${rec.idReclamacao})" title="Excluir">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // ==================== CARREGAR VEÍCULOS ====================
+        async function carregarVeiculos() {
+            try {
+                const response = await fetch(`${API_URL}/veiculos`);
+                veiculos = await response.json();
+                
+                const select = document.getElementById('fkVeiculo');
+                select.innerHTML = '<option value="">Selecione um veículo</option>';
+                veiculos.forEach(v => {
+                    select.innerHTML += `<option value="${v.idVeiculo}">${v.tipoTransporte} - ${v.tipoVeiculo}</option>`;
+                });
+            } catch (error) {
+                console.error('❌ Erro ao carregar veículos:', error);
+            }
+        }
+
+        // ==================== CARREGAR LOCAIS ====================
+        async function carregarLocais() {
+            try {
+                const response = await fetch(`${API_URL}/locais`);
+                locais = await response.json();
+                
+                const select = document.getElementById('fkLocalEmbarque');
+                select.innerHTML = '<option value="">Selecione um local</option>';
+                locais.forEach(l => {
+                    select.innerHTML += `<option value="${l.idLocal}">${l.nome} - ${l.linha_frota || l.municipio}</option>`;
+                });
+            } catch (error) {
+                console.error('❌ Erro ao carregar locais:', error);
+            }
+        }
+
+        // ==================== MODAL ====================
+        function abrirModalCriar() {
+            modoEdicao = false;
+            document.getElementById('modal-title').textContent = 'Nova Reclamação';
+            document.getElementById('form-reclamacao').reset();
+            document.getElementById('reclamacao-id').value = '';
+            document.getElementById('check-veiculo').checked = false;
+            document.getElementById('check-local').checked = false;
+            toggleSelects();
+            document.getElementById('modal-reclamacao').style.display = 'block';
+        }
+
+        async function editarReclamacao(id) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`);
+                const rec = await response.json();
+                
+                modoEdicao = true;
+                document.getElementById('modal-title').textContent = 'Editar Reclamação';
+                document.getElementById('reclamacao-id').value = rec.idReclamacao;
+                document.getElementById('tipo').value = rec.tipo;
+                document.getElementById('descricao').value = rec.descricao;
+                document.getElementById('statusReclamacao').value = rec.statusReclamacao;
+                
+                document.getElementById('check-veiculo').checked = !!rec.fkVeiculo;
+                document.getElementById('check-local').checked = !!rec.fkLocalEmbarque;
+                toggleSelects();
+                
+                if (rec.fkVeiculo) {
+                    document.getElementById('fkVeiculo').value = rec.fkVeiculo;
+                }
+                if (rec.fkLocalEmbarque) {
+                    document.getElementById('fkLocalEmbarque').value = rec.fkLocalEmbarque;
+                }
+                
+                document.getElementById('modal-reclamacao').style.display = 'block';
+            } catch (error) {
+                mostrarErro('Erro ao carregar dados da reclamação');
+            }
+        }
+
+        function fecharModal() {
+            document.getElementById('modal-reclamacao').style.display = 'none';
+        }
+
+        function toggleSelects() {
+            const checkVeiculo = document.getElementById('check-veiculo').checked;
+            const checkLocal = document.getElementById('check-local').checked;
+            
+            document.getElementById('group-veiculo').style.display = checkVeiculo ? 'block' : 'none';
+            document.getElementById('group-local').style.display = checkLocal ? 'block' : 'none';
+            
+            if (!checkVeiculo) {
+                document.getElementById('fkVeiculo').value = '';
+            }
+            if (!checkLocal) {
+                document.getElementById('fkLocalEmbarque').value = '';
+            }
+        }
+
+        // ==================== SALVAR RECLAMAÇÃO ====================
+        async function salvarReclamacao() {
+            const idUsuario = obterIdUsuario();
+            if (!idUsuario) return;
+            
+            const tipo = document.getElementById('tipo').value.trim();
+            const descricao = document.getElementById('descricao').value.trim();
+            const statusReclamacao = document.getElementById('statusReclamacao').value;
+            const checkVeiculo = document.getElementById('check-veiculo').checked;
+            const checkLocal = document.getElementById('check-local').checked;
+            const fkVeiculo = document.getElementById('fkVeiculo').value;
+            const fkLocalEmbarque = document.getElementById('fkLocalEmbarque').value;
+            
+            // Validações
+            if (!tipo || !descricao) {
+                mostrarErro('Preencha todos os campos obrigatórios');
+                return;
+            }
+            
+            if (!checkVeiculo && !checkLocal) {
+                mostrarErro('Selecione ao menos Veículo ou Local de Embarque');
+                return;
+            }
+            
+            if (checkVeiculo && !fkVeiculo) {
+                mostrarErro('Selecione um veículo');
+                return;
+            }
+            
+            if (checkLocal && !fkLocalEmbarque) {
+                mostrarErro('Selecione um local de embarque');
+                return;
+            }
+            
+            const dados = {
+                tipo,
+                descricao,
+                statusReclamacao,
+                fkVeiculo: checkVeiculo ? fkVeiculo : null,
+                fkLocalEmbarque: checkLocal ? fkLocalEmbarque : null,
+                fkUsuario: idUsuario
+            };
+            
+            try {
+                let response;
+                if (modoEdicao) {
+                    const id = document.getElementById('reclamacao-id').value;
+                    response = await fetch(`${API_URL}/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dados)
+                    });
+                } else {
+                    response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dados)
+                    });
+                }
+                
+                if (response.ok) {
+                    mostrarSucesso(modoEdicao ? 'Reclamação atualizada!' : 'Reclamação criada!');
+                    fecharModal();
+                    await carregarDados();
+                } else {
+                    const erro = await response.json();
+                    mostrarErro(erro.erro || 'Erro ao salvar reclamação');
+                }
+            } catch (error) {
+                mostrarErro('Erro ao salvar reclamação: ' + error.message);
+            }
+        }
+
+        // ==================== EXCLUIR ====================
+        function confirmarExclusao(id) {
+            if (confirm('Tem certeza que deseja excluir esta reclamação?')) {
+                excluirReclamacao(id);
+            }
+        }
+
+        async function excluirReclamacao(id) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    mostrarSucesso('Reclamação excluída com sucesso!');
+                    await carregarDados();
+                } else {
+                    mostrarErro('Erro ao excluir reclamação');
+                }
+            } catch (error) {
+                mostrarErro('Erro ao excluir reclamação: ' + error.message);
+            }
+        }
+
+        // ==================== BUSCA ====================
+        document.getElementById('search-input').addEventListener('input', async (e) => {
+            const termo = e.target.value.trim();
+            const idUsuario = obterIdUsuario();
+            
+            if (!idUsuario) return;
+            
+            if (termo.length >= 3) {
+                try {
+                    const response = await fetch(`${API_URL}/buscar?termo=${encodeURIComponent(termo)}&idUsuario=${idUsuario}`);
+                    const reclamacoes = await response.json();
+                    
+                    const tbody = document.getElementById('tbody-reclamacoes');
+                    tbody.innerHTML = '';
+                    
+                    if (reclamacoes.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Nenhum resultado encontrado</td></tr>';
+                    } else {
+                        reclamacoes.forEach(rec => {
+                            tbody.innerHTML += criarLinhaTabela(rec);
+                        });
+                    }
+                } catch (error) {
+                    console.error('❌ Erro na busca:', error);
+                }
+            } else if (termo.length === 0) {
+                carregarReclamacoes(idUsuario);
+            }
+        });
+
+        // ==================== MENSAGENS ====================
+        function mostrarErro(mensagem) {
+            const container = document.getElementById('error-container');
+            container.textContent = mensagem;
+            container.style.display = 'block';
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 5000);
+        }
+
+        function mostrarSucesso(mensagem) {
+            const container = document.getElementById('success-container');
+            container.textContent = mensagem;
+            container.style.display = 'block';
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 3000);
+        }
+
+        // ==================== SIDEBAR TOGGLE ====================
         const navToggle = document.querySelector('.nav-toggle');
         const sidebar = document.getElementById('sidebar');
 
@@ -166,27 +823,42 @@
                 e.stopPropagation();
                 sidebar.classList.toggle('open');
             });
-
-            // Fecha o sidebar ao clicar em um item
+            
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.addEventListener('click', () => {
                     sidebar.classList.remove('open');
                 });
             });
-
-            // Fecha o sidebar ao clicar fora
+            
             document.addEventListener('click', (e) => {
-                if (
-                    !sidebar.contains(e.target) &&
-                    !navToggle.contains(e.target) &&
-                    sidebar.classList.contains('open')
-                ) {
+                if (!sidebar.contains(e.target) && !navToggle.contains(e.target) && sidebar.classList.contains('open')) {
                     sidebar.classList.remove('open');
                 }
             });
         }
+
+        // ==================== FECHAR MODAL AO CLICAR FORA ====================
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal-reclamacao');
+            if (event.target == modal) {
+                fecharModal();
+            }
+        }
+        
+        // ==================== VERIFICAÇÃO DE PERMISSÃO PAINEL ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            var nivel = sessionStorage.NIVEL_USUARIO;
+            var menuPainel = document.getElementById('menuPainel');
+            
+            // Mostrar/ocultar item Painel baseado no nível
+            if (menuPainel) {
+                if (nivel == 1 || nivel == 2) {
+                    menuPainel.style.display = "flex";
+                } else {
+                    menuPainel.style.display = "none";
+                }
+            }
+        });
     </script>
-
 </body>
-
 </html>

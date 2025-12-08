@@ -13,9 +13,7 @@
     <script src="../js/sessao.js"></script>
 </head>
 
-<!-- validarSessao(); -->
-
-<body onload=" visualizar(); listarReclamacoesUser();">
+<body onload="validarSessao(); visualizar(); listarReclamacoesUser();">
 
     <div class="dashboard">
 
@@ -32,13 +30,14 @@
                     <i class="fa fa-user-circle-o"></i>
                     <span>Perfil</span>
                 </a>
+                <!-- ITEM PAINEL - APENAS PARA NÍVEIS 1 E 2 -->
+                <a href="painel.html" class="nav-item" id="menuPainel" style="display: none;">
+                    <i class="fas fa-cogs"></i>
+                    <span>Painel</span>
+                </a>
                 <a href="mural.html" class="nav-item">
                     <i class="fas fa-chart-bar"></i>
                     <span>Dashboard</span>
-                </a>
-                <a href="mapa.html" class="nav-item">
-                    <i class="fa-regular fa-map"></i>
-                    <span>Mapas</span>
                 </a>
                 <a href="relatorios.html" class="nav-item">
                     <i class="fas fa-chart-line"></i>
@@ -86,136 +85,53 @@
                         </span>
                     </div>
                 </div>
-
-                <!-- CARDS DE STATUS -->
-                <div class="stats-grid-wrapper">
-                    <div class="stat-grid">
-
-                        <div class="status-card status-total">
-                            <div class="status-card-icon"><i class="fas fa-file-alt"></i></div>
-                            <div class="status-label">Total de Reclamações</div>
-                            <div class="status-number" id="total-reclamacoes">0</div>
-                            <div class="status-subtitle">Últimos 30 dias</div>
-                        </div>
-
-                        <div class="status-card status-pendente">
-                            <div class="status-card-icon"><i class="fas fa-exclamation-circle"></i></div>
-                            <div class="status-label">Pendentes</div>
-                            <div class="status-number" id="total-pendentes">0</div>
-                            <div class="status-subtitle">Aguardando resolução</div>
-                        </div>
-
-                        <div class="status-card status-andamento">
-                            <div class="status-card-icon"><i class="fas fa-clock"></i></div>
-                            <div class="status-label">Em Andamento</div>
-                            <div class="status-number" id="total-andamento">0</div>
-                            <div class="status-subtitle">Sendo resolvidas</div>
-                        </div>
-
-                        <div class="status-card status-resolvido">
-                            <div class="status-card-icon"><i class="fas fa-check-circle"></i></div>
-                            <div class="status-label">Resolvidas</div>
-                            <div class="status-number" id="total-resolvidas">0</div>
-                            <div class="status-subtitle">Concluídas</div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <table class="complaints-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Data/Hora</th>
-                            <th>Tipo</th>
-                            <th>Local</th>
-                            <th>Prioridade</th>
-                            <th>Status</th>
-                            <th>Descrição</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="complaints-tbody"></tbody>
-                </table>
-
-                <div id="no-results" style="display:none">Nenhuma reclamação encontrada.</div>
-
-                <div class="main-content-reclamacoes">
-
-                    <div class="section-header">
-                        <h2 class="section-title">Relatório de Reclamações</h2>
-
-                        <div style="display: flex; align-items: center; gap: 16px;">
-
-                            <button class="btn-nova-reclamacao" id="btnNovaReclamacao">
-                                <i class="fas fa-plus"></i> Nova Reclamação
-                            </button>
-
-                            <!-- MODAL DE FILTRO DE RECLAMAÇÕES -->
-                            <div id="modalFiltro" class="modal-filtro hidden">
-                                <div class="modal-filtro-content">
-                                    <h2>Filtrar Reclamações</h2>
-
-                                    <label for="select_status" class="label-filtro">Status:</label>
-                                    <select id="select_status" class="input-filtro">
-                                        <option value="Todos">Todos</option>
-                                        <option value="Pendente">Pendente</option>
-                                        <option value="Em análise">Em análise</option>
-                                        <option value="Resolvido">Resolvido</option>
-                                    </select>
-
-                                    <div class="modal-buttons">
-                                        <button id="btn_aplicar_filtro" class="btn-aplicar">Aplicar</button>
-                                        <button id="btn_fechar_filtro" class="btn-cancelar">Cancelar</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- TABELA -->
-                    <table class="reclamacoes-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Data/Hora</th>
-                                <th>Tipo</th>
-                                <th>Local</th>
-                                <th>Status</th>
-                                <th>Descrição</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="tabelaReclamacoesUser">
-                            <!-- preenchido automaticamente pelo reclamacaoUser.js -->
-                        </tbody>
-                    </table>
-
-                    <p id="mensagemSemReclamacoes" style="display:none; text-align:center; padding:20px; color:#777;">
-                        Nenhuma reclamação encontrada.
-                    </p>
-
-                </div>
-
-
             </main>
         </div>
     </div>
 
-
-    <script src="../js/reclamacaoUser.js"></script>
+    <!-- Scripts -->
     <script src="../js/deletar.js"></script>
     <script src="../js/visualizar.js"></script>
     <script src="../js/editar.js"></script>
-    <script src="../js/reclamacaoUser.js"></script>
 
     <script>
+        // Menu hamburger
         const navToggle = document.querySelector('.nav-toggle');
         const sidebar = document.getElementById('sidebar');
 
-        navToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+        if (navToggle && sidebar) {
+            navToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sidebar.classList.toggle('open');
+            });
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    sidebar.classList.remove('open');
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!sidebar.contains(e.target) && !navToggle.contains(e.target) && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        }
+
+        // Verificação de permissão ao carregar a página
+        document.addEventListener('DOMContentLoaded', function () {
+            var nivel = sessionStorage.NIVEL_USUARIO;
+            var menuPainel = document.getElementById('menuPainel');
+
+            // Mostrar/ocultar item Painel baseado no nível
+            if (menuPainel) {
+                if (nivel == 1 || nivel == 2) {
+                    menuPainel.style.display = "flex";
+                } else {
+                    menuPainel.style.display = "none";
+                }
+            }
+        });
     </script>
 </body>
 

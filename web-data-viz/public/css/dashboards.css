@@ -14,6 +14,7 @@ html {
 
 body {
   font-family: 'Montserrat', sans-serif;
+  background-color: #F5F7FA;
   overflow-y: scroll;
 }
 
@@ -26,21 +27,26 @@ body {
   -ms-overflow-style: none;
 }
 
+/* CONTAINER PRINCIPAL COM SIDEBAR FIXO */
 .dashboard {
   display: flex;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
-/* Sidebar */
+/* SIDEBAR FIXO - ESTILO DA IMAGEM */
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 260px;
+  height: 100vh;
   background: white;
   border-right: 1px solid #e5e7eb;
   padding: 24px 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease-in-out;
-  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -57,10 +63,6 @@ body {
   border-bottom: 1px solid #e5e7eb;
 }
 
-#sair {
-  margin-top: 340px;
-}
-
 .logo {
   display: flex;
   align-items: center;
@@ -68,7 +70,7 @@ body {
   color: #1f2937;
   font-weight: 600;
   font-size: 18px;
-  margin-left: 45px;
+  justify-content: center;
 }
 
 .logo i {
@@ -81,6 +83,9 @@ body {
 
 .nav-menu {
   padding: 24px 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .nav-item {
@@ -110,22 +115,32 @@ body {
   text-align: center;
 }
 
-/* Main Content */
+/* Sair no final do menu */
+#sair {
+  margin-top: auto;
+  margin-bottom: 24px;
+}
+
+/* CONTEÚDO PRINCIPAL */
 .main-content {
+  margin-left: 260px;
   flex: 1;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 /* Header */
 .header {
+  position: sticky;
+  top: 0;
   background: white;
   padding: 16px 24px;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  z-index: 90;
 }
 
 .header h1 {
@@ -159,7 +174,6 @@ body {
   overflow-y: auto;
 }
 
-/* REMOVER BARRA DE ROLAGEM DO CONTENT MAS MANTER FUNCIONALIDADE */
 .content::-webkit-scrollbar {
   display: none;
 }
@@ -270,7 +284,7 @@ body {
   height: 300px;
 }
 
-/* Menu Hamburguer - ESTILOS ATUALIZADOS */
+/* Menu Hamburguer */
 .nav-toggle {
   display: none;
   flex-direction: column;
@@ -292,52 +306,21 @@ body {
   transition: all 0.3s ease;
 }
 
-.nav-toggle:hover,
-.nav-toggle:focus {
-  background: transparent !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-.menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: #1f2937;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.menu-toggle:hover {
-  background-color: #f3f4f6;
-}
-
-/* Responsive - ATUALIZADO PARA FICAR IGUAL AO INDEX */
+/* Responsive */
 @media (max-width: 992px) {
   .nav-toggle {
     display: flex !important;
   }
 
-  .menu-toggle {
-    display: block;
-  }
-
   .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 300px;
     transform: translateX(-100%);
-    z-index: 1000;
-    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+    width: 280px;
   }
 
   .sidebar.open {
     transform: translateX(0);
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
   }
 
   .main-content {
@@ -403,23 +386,6 @@ body {
   }
 }
 
-/* Garantir que o botão não tenha estilos indesejados */
-button.nav-toggle,
-button.menu-toggle {
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-.nav-toggle:focus,
-.menu-toggle:focus {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
 /* REMOVER BARRA DE ROLAGEM DE TODOS OS ELEMENTOS */
 *::-webkit-scrollbar {
   display: none;
@@ -429,251 +395,3 @@ button.menu-toggle {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-
-/* MAPA */
-.mapa-container {
-  display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 24px;
-  height: calc(100vh - 120px);
-}
-
-.mapa-visual {
-  background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.mapa-sidebar {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  overflow-y: auto;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #f3f4f6;
-}
-
-.mapa-title {
-  color: #1f2937;
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.mapa-subtitle {
-  color: #6b7280;
-  font-size: 14px;
-  margin-bottom: 24px;
-}
-
-.divider {
-  height: 1px;
-  background: #e5e7eb;
-  margin: 20px 0;
-}
-
-.section-title {
-  color: #1f2937;
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 16px;
-}
-
-.frota-info {
-  background: #f8fafc;
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.frota-count {
-  font-size: 32px;
-  font-weight: 700;
-  color: #2563eb;
-  margin-bottom: 4px;
-}
-
-.frota-label {
-  color: #6b7280;
-  font-size: 14px;
-}
-
-.onibus-lista {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.onibus-item {
-  background: #f8fafc;
-  padding: 16px;
-  border-radius: 8px;
-  border-left: 4px solid #10b981;
-}
-
-.onibus-item.parcial {
-  border-left-color: #f59e0b;
-}
-
-.onibus-item.nao-acessivel {
-  border-left-color: #ef4444;
-}
-
-.onibus-numero {
-  font-weight: 700;
-  color: #1f2937;
-  font-size: 16px;
-  margin-bottom: 4px;
-}
-
-.onibus-placa {
-  color: #6b7280;
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-.onibus-status {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-
-.status-acessivel {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.status-parcial {
-  background: #fef3c7;
-  color: #d97706;
-}
-
-.status-nao {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-.onibus-passageiros {
-  color: #6b7280;
-  font-size: 12px;
-}
-
-.detalhes-onibus {
-  background: #eff6ff;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 24px;
-}
-
-.detalhes-title {
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 12px;
-}
-
-.detalhes-info {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.detalhes-label {
-  color: #6b7280;
-}
-
-.detalhes-value {
-  color: #1f2937;
-  font-weight: 500;
-}
-
-.legenda {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.legenda-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.legenda-cor {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-.cor-acessivel {
-  background: #10b981;
-}
-
-.cor-parcial {
-  background: #f59e0b;
-}
-
-.cor-nao {
-  background: #ef4444;
-}
-
-.footer-mapa {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
-  text-align: center;
-  color: #6b7280;
-  font-size: 14px;
-}
-
-.marcador-onibus {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  background: white;
-  border: 3px solid #10b981;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 12px;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s;
-}
-
-.marcador-onibus:hover {
-  transform: scale(1.1);
-}
-
-.marcador-onibus.parcial {
-  border-color: #f59e0b;
-}
-
-.marcador-onibus.nao-acessivel {
-  border-color: #ef4444;
-}
-
-@media (max-width: 992px) {
-  .mapa-container {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-
-  .mapa-visual {
-    height: 400px;
-  }
-}
-
-/* RECLAMAÇÕES */
-

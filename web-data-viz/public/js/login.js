@@ -39,10 +39,14 @@ function entrar() {
 
                 alert("Login realizado com sucesso!");
 
-                if(sessionStorage.NIVEL_USUARIO == 2){
+                if(sessionStorage.NIVEL_USUARIO == 1) {
+                    window.location = "/dashboard/painel.html";
+                }
+                if(sessionStorage.NIVEL_USUARIO == 2) {
                     window.location = "/dashboard/painel.html";    
-                } else {
-                    window.location = "/dashboard/perfil.html";
+                } 
+                if(sessionStorage.NIVEL_USUARIO == 3) {
+                    window.location = "/dashboard/mural.html"
                 }
 
             });
