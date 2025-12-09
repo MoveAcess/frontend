@@ -4,13 +4,15 @@ let currentSearch = '';
 let currentUserId = null;
 let currentUserNivel = null;
 let currentUserNome = null;
-const API_BASE_URL = 'http://localhost:8080';
+
+// REMOVIDO: const API_BASE_URL = 'http://localhost:8080'; 
+// Agora usamos caminhos relativos automáticos
 
 // ==================== INICIALIZAÇÃO ====================
 document.addEventListener('DOMContentLoaded', function () {
     // Carregar dados do usuário do sessionStorage
     if (!loadUserFromSession()) {
-        return; // Se falhar, a função já redireciona
+        return; 
     }
     
     loadComplaints();
@@ -25,7 +27,6 @@ function loadUserFromSession() {
     
     console.log('🔐 Verificando sessionStorage:', { idUsuario, nomeUsuario, nivelAcesso });
     
-    // Verificar se o usuário está logado
     if (!idUsuario || !nivelAcesso) {
         console.error('❌ Usuário não logado - redirecionando para login');
         alert('Você precisa fazer login primeiro!');
@@ -33,7 +34,6 @@ function loadUserFromSession() {
         return false;
     }
     
-    // Converter para números
     currentUserId = parseInt(idUsuario);
     currentUserNivel = parseInt(nivelAcesso);
     currentUserNome = nomeUsuario;
@@ -44,11 +44,10 @@ function loadUserFromSession() {
         nivel: currentUserNivel
     });
     
-    // Verificar se é admin (nível 1 ou 2)
     if (currentUserNivel !== 1 && currentUserNivel !== 2) {
         console.error('❌ Acesso negado - Nível:', currentUserNivel);
         alert('Acesso negado! Apenas administradores (nível 1 ou 2) podem acessar este painel.');
-        window.location.href = 'mural.html'; // Redirecionar para dashboard do usuário
+        window.location.href = 'mural.html'; 
         return false;
     }
     
@@ -60,8 +59,8 @@ function loadUserFromSession() {
 function loadComplaints() {
     console.log('📋 Carregando todas as reclamações (admin)...');
     
-    // Admins veem TODAS as reclamações - não precisa passar idUsuario
-    fetch(`${API_BASE_URL}/reclamacoes`)
+    // MUDANÇA AQUI: Caminho relativo
+    fetch(`/reclamacoes`) 
         .then(res => {
             console.log('📡 Resposta da API:', res.status);
             if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
@@ -96,11 +95,13 @@ function loadComplaints() {
 }
 
 function formatDate(dateString) {
+    if(!dateString) return "--/--/----";
     const date = new Date(dateString);
     return date.toLocaleDateString("pt-BR");
 }
 
 function formatTime(dateString) {
+    if(!dateString) return "--:--";
     const date = new Date(dateString);
     return date.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
 }
@@ -170,11 +171,11 @@ function renderComplaints() {
     
     if (filtered.length === 0) {
         tbody.innerHTML = '';
-        noResults.style.display = 'block';
+        if(noResults) noResults.style.display = 'block';
         return;
     }
     
-    noResults.style.display = 'none';
+    if(noResults) noResults.style.display = 'none';
     
     tbody.innerHTML = filtered.map(complaint => `
         <tr id="row-${complaint.idOriginal}">
@@ -207,17 +208,14 @@ function renderComplaints() {
                             <button class="status-option status-pendente ${complaint.status === 'Pendente' ? 'selected' : ''}" onclick="updateStatus(${complaint.idOriginal}, 'Pendente', event)">
                                 <span class="status-dot dot-pendente"></span>
                                 <span>Pendente</span>
-                                ${complaint.status === 'Pendente' ? '<svg class="checkmark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>' : ''}
                             </button>
                             <button class="status-option status-em-andamento ${complaint.status === 'Em andamento' ? 'selected' : ''}" onclick="updateStatus(${complaint.idOriginal}, 'Em andamento', event)">
                                 <span class="status-dot dot-em-andamento"></span>
                                 <span>Em andamento</span>
-                                ${complaint.status === 'Em andamento' ? '<svg class="checkmark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>' : ''}
                             </button>
                             <button class="status-option status-resolvido ${complaint.status === 'Resolvido' ? 'selected' : ''}" onclick="updateStatus(${complaint.idOriginal}, 'Resolvido', event)">
                                 <span class="status-dot dot-resolvido"></span>
                                 <span>Resolvido</span>
-                                ${complaint.status === 'Resolvido' ? '<svg class="checkmark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>' : ''}
                             </button>
                         </div>
                     </div>
@@ -227,15 +225,10 @@ function renderComplaints() {
             <td>
                 <div class="action-buttons">
                     <button class="action-btn view-btn" onclick="viewComplaint(${complaint.idOriginal})" title="Ver detalhes">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
+                        <i class="fas fa-eye"></i>
                     </button>
                     <button class="action-btn comment-btn" onclick="toggleComments(${complaint.idOriginal})" title="Comentários">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
+                        <i class="fas fa-comment"></i>
                     </button>
                 </div>
             </td>
@@ -253,9 +246,6 @@ function renderComplaints() {
                     <div class="add-comment-form">
                         <textarea id="comment-input-${complaint.idOriginal}" placeholder="Escreva um comentário..." rows="2"></textarea>
                         <button class="add-comment-btn" onclick="addComment(${complaint.idOriginal})">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                            </svg>
                             Enviar
                         </button>
                     </div>
@@ -284,7 +274,8 @@ function loadComments(idReclamacao) {
     const commentsList = document.getElementById(`comments-list-${idReclamacao}`);
     commentsList.innerHTML = '<div class="loading-comments">Carregando...</div>';
     
-    fetch(`${API_BASE_URL}/reclamacoes/${idReclamacao}/comentarios`)
+    // MUDANÇA AQUI: Caminho relativo
+    fetch(`/reclamacoes/${idReclamacao}/comentarios`)
         .then(res => {
             if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
             return res.json();
@@ -311,15 +302,9 @@ function loadComments(idReclamacao) {
                     ${isMyComment ? `
                         <div class="comment-actions">
                             <button class="comment-action-btn edit-btn" onclick="editComment(${c.idComentario}, '${c.comentario.replace(/'/g, "\\'")}')">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
                                 Editar
                             </button>
                             <button class="comment-action-btn delete-btn" onclick="deleteComment(${c.idComentario}, ${idReclamacao})">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
                                 Excluir
                             </button>
                         </div>
@@ -342,7 +327,8 @@ function addComment(idReclamacao) {
         return;
     }
     
-    fetch(`${API_BASE_URL}/reclamacoes/${idReclamacao}/comentarios`, {
+    // MUDANÇA AQUI: Caminho relativo
+    fetch(`/reclamacoes/${idReclamacao}/comentarios`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idUsuario: currentUserId, texto: texto })
@@ -366,7 +352,8 @@ function editComment(idComentario, textoAtual) {
     
     if (novoTexto === null || novoTexto.trim() === '') return;
     
-    fetch(`${API_BASE_URL}/reclamacoes/comentarios/${idComentario}`, {
+    // MUDANÇA AQUI: Caminho relativo
+    fetch(`/reclamacoes/comentarios/${idComentario}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idUsuario: currentUserId, texto: novoTexto.trim() })
@@ -388,7 +375,8 @@ function editComment(idComentario, textoAtual) {
 function deleteComment(idComentario, idReclamacao) {
     if (!confirm("Deseja excluir este comentário?")) return;
     
-    fetch(`${API_BASE_URL}/reclamacoes/comentarios/${idComentario}`, {
+    // MUDANÇA AQUI: Caminho relativo
+    fetch(`/reclamacoes/comentarios/${idComentario}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idUsuario: currentUserId })
@@ -413,7 +401,8 @@ function toggleStatusMenu(id, event) {
     document.querySelectorAll('.status-menu').forEach(menu => {
         if (menu.id !== `status-menu-${id}`) menu.classList.remove('show');
     });
-    document.getElementById(`status-menu-${id}`).classList.toggle('show');
+    const menu = document.getElementById(`status-menu-${id}`);
+    if(menu) menu.classList.toggle('show');
 }
 
 function updateStatus(id, newStatus, event) {
@@ -421,7 +410,8 @@ function updateStatus(id, newStatus, event) {
     const menu = document.getElementById(`status-menu-${id}`);
     if (menu) menu.classList.remove('show');
     
-    fetch(`${API_BASE_URL}/reclamacoes/${id}/status`, {
+    // MUDANÇA AQUI: Caminho relativo
+    fetch(`/reclamacoes/${id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -451,18 +441,25 @@ function viewComplaint(id) {
 function setupEventListeners() {
     document.addEventListener('click', function() {
         document.querySelectorAll('.status-menu').forEach(menu => menu.classList.remove('show'));
-        document.getElementById('filter-menu').classList.remove('show');
+        const filterMenu = document.getElementById('filter-menu');
+        if(filterMenu) filterMenu.classList.remove('show');
     });
     
-    document.getElementById('search-input').addEventListener('input', function() {
-        currentSearch = this.value;
-        renderComplaints();
-    });
+    const searchInput = document.getElementById('search-input');
+    if(searchInput) {
+        searchInput.addEventListener('input', function() {
+            currentSearch = this.value;
+            renderComplaints();
+        });
+    }
     
-    document.getElementById('filter-button').addEventListener('click', function(e) {
-        e.stopPropagation();
-        document.getElementById('filter-menu').classList.toggle('show');
-    });
+    const filterBtn = document.getElementById('filter-button');
+    if(filterBtn) {
+        filterBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('filter-menu').classList.toggle('show');
+        });
+    }
     
     document.querySelectorAll('.filter-option').forEach(option => {
         option.addEventListener('click', function(e) {
@@ -470,7 +467,8 @@ function setupEventListeners() {
             document.querySelectorAll('.filter-option').forEach(opt => opt.classList.remove('active'));
             this.classList.add('active');
             currentFilter = this.getAttribute('data-filter');
-            document.getElementById('filter-text').textContent = currentFilter;
+            const filterText = document.getElementById('filter-text');
+            if(filterText) filterText.textContent = currentFilter;
             renderComplaints();
             document.getElementById('filter-menu').classList.remove('show');
         });

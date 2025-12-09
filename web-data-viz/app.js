@@ -33,6 +33,12 @@ app.use("/reclamacoes", reclamacoesRouter);
 app.use("/dashboard", dashboardRouter);
 app.use("/reclamacaoUser", reclamacaoUserRouter);
 
+app.get('/config', (req, res) => {
+    res.json({
+        API_BASE_URL: process.env.API_BASE_URL
+    });
+});
+
 
 console.log("usuarioRouter =", usuarioRouter);
 console.log("reclamacoesRouter =", reclamacoesRouter);
