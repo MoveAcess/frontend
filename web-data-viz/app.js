@@ -29,6 +29,7 @@ app.use(cors());
 
 app.use("/usuarios", usuarioRouter);
 app.use("/reclamacoes", reclamacoesRouter);
+// app.js - verifique se está assim:
 app.use("/dashboard", dashboardRouter);
 app.use("/reclamacaoUser", reclamacaoUserRouter);
 
@@ -38,6 +39,7 @@ console.log("reclamacoesRouter =", reclamacoesRouter);
 console.log("dashboardRouter =", dashboardRouter);
 console.log("reclamacaoUserRouter =", reclamacaoUserRouter);
 console.log("Processo de ambiente:", ambiente_processo);
+
 
 app.listen(PORTA_APP, function () {
     console.log(`
