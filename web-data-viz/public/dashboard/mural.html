@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Acessibilidade em Transporte Público</title>
+    <title>Dashboard</title>
     <link rel="icon" href="../assets/imgs/logoPreta.png">
-    
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/dashboards.css">
@@ -24,7 +24,7 @@
 
             <nav class="nav-menu">
                 <a href="perfil.html" class="nav-item">
-                    <i class="fa fa-user-circle-o"></i>
+                    <i class="fa-solid fa-user"></i>
                     <span>Perfil</span>
                 </a>
                 <a href="painel.html" class="nav-item" id="menuPainel" style="display: none;">
@@ -60,7 +60,7 @@
 
             <main class="content">
                 <div class="stats-grid">
-                    
+
                     <div class="stat-card">
                         <div class="stat-header">
                             <div class="stat-icon">
@@ -135,7 +135,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             // Cria os gráficos vazios primeiro
             inicializarGraficosVazios();
-            
+
             // Busca os dados do banco
             carregarDadosDashboard();
 

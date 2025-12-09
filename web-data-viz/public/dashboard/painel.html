@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Gerenciamento de Reclamações - MoveAcess</title>
+    <title>Painel</title>
+    <link rel="icon" href="../assets/imgs/logoPreta.png">
     <link rel="stylesheet" href="../css/painel.css">
     <!-- Adicione o Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -14,19 +15,19 @@
 
 <body onload="validarSessao()">
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/d820310b0bfc1899a5a765f79bac3ccfe87e7228-lMfRlkvKYvoQ9wnwvBJfLqSfBq1iLe.png"
-                alt="MoveAcess" class="logo">
+            <div class="logo">
+                <img src="../assets/imgs/logo.svg" alt="" width="120px">
+            </div>
         </div>
 
         <nav class="nav-menu">
             <a href="perfil.html" class="nav-item">
-                <i class="fa fa-user-circle-o"></i>
+                <i class="fa-solid fa-user"></i>
                 <span>Perfil</span>
             </a>
-            <!-- ITEM PAINEL - APENAS PARA NÍVEIS 1 E 2 -->
-            <a href="painel.html" class="nav-item active" id="menuPainel">
+            <a href="painel.html" class="nav-item active" id="menuPainel" style="display: none;">
                 <i class="fas fa-cogs"></i>
                 <span>Painel</span>
             </a>
@@ -38,16 +39,11 @@
                 <i class="fas fa-chart-line"></i>
                 <span>Relatórios</span>
             </a>
-            <!-- Removemos o botão duplicado de Sair -->
-        </nav>
-
-        <!-- Movemos o botão Sair para dentro do nav-menu -->
-        <div class="sidebar-footer">
-            <a href="../index.html" class="nav-item" onclick="limparSessao()">
+            <a href="../index.html" class="nav-item" id="sair">
                 <i class="fa-solid fa-door-open"></i>
-                <span>Sair</span>
+                <span onclick="limparSessao()">Sair</span>
             </a>
-        </div>
+        </nav>
     </aside>
 
     <!-- Main Content -->
@@ -56,9 +52,9 @@
         <header class="header">
             <h1>Painel de Reclamações</h1>
             <!-- Adicione um indicador do usuário logado se necessário -->
-            <div class="user-info">
+            <!-- <div class="user-info">
                 <span id="b_usuario"></span>
-            </div>
+            </div> -->
         </header>
 
         <!-- Content -->
@@ -183,12 +179,12 @@
     </div>
 
     <script src="../js/painel.js"></script>
-    
+
     <script>
         // Redirecionar se o usuário não tiver permissão para acessar o painel
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var nivel = sessionStorage.NIVEL_USUARIO;
-            
+
             // Se não houver nível (não está logado) ou se for nível 3
             if (!nivel || nivel == 3) {
                 // Redireciona para o mural (dashboard) se for nível 3
