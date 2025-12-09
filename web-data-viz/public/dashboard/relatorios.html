@@ -240,7 +240,6 @@
 </head>
 <body onload="validarSessao(); carregarDados();">
     <div class="dashboard">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
@@ -252,7 +251,6 @@
                     <i class="fa fa-user-circle-o"></i>
                     <span>Perfil</span>
                 </a>
-                <!-- ITEM PAINEL - APENAS PARA NÍVEIS 1 E 2 -->
                 <a href="painel.html" class="nav-item" id="menuPainel" style="display: none;">
                     <i class="fas fa-cogs"></i>
                     <span>Painel</span>
@@ -285,7 +283,6 @@
             </header>
 
             <main class="content">
-                <!-- Cards de Estatísticas -->
                 <div class="stats-grid-wrapper">
                     <div class="stats-grid">
                         <div class="status-card status-total">
@@ -326,7 +323,6 @@
                     </div>
                 </div>
 
-                <!-- Tabela de Reclamações -->
                 <div class="main-content-reclamacoes">
                     <div class="section-header">
                         <h2 class="section-title">Relatório de Reclamações</h2>
@@ -370,7 +366,6 @@
         </div>
     </div>
 
-    <!-- Modal Criar/Editar Reclamação -->
     <div id="modal-reclamacao" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -433,7 +428,10 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:8080/reclamacoes';
+        // --- AQUI ESTAVA O ERRO ---
+        // Alterado de 'http://localhost:8080/reclamacoes' para '/reclamacoes'
+        const API_URL = '/reclamacoes'; 
+        
         let veiculos = [];
         let locais = [];
         let modoEdicao = false;
